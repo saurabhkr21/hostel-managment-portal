@@ -11,17 +11,84 @@ export async function GET(req: Request) {
         const notifications = await prisma.notification.findMany({
             where: {
                 userId: session.user.id,
-                read: false, // Only fetch unread for the badge
             },
             orderBy: {
                 createdAt: "desc"
             },
-            take: 20 // Limit to latest 20
+            take: 50
         });
 
         return NextResponse.json(notifications);
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 });
+    }
+}
+
+export async function POST(req: Request) {
+    const session = await getServerSession(authOptions);
+    // Allow Admin and Staff to send notifications
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "STAFF")) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const body = await req.json();
+        const { targetType, recipientId, type, title, message } = body;
+
+        if (!message) {
+            return NextResponse.json({ error: "Message is required" }, { status: 400 });
+        }
+
+        if (targetType === "individual") {
+            if (!recipientId) return NextResponse.json({ error: "Recipient ID/Email is required" }, { status: 400 });
+
+            // Find user by Email or ID
+            const user = await prisma.user.findFirst({
+                where: {
+                    OR: [
+                        { id: recipientId },
+                        { email: recipientId }
+                    ]
+                }
+            });
+
+            if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+            await prisma.notification.create({
+                data: {
+                    userId: user.id,
+                    type: type || "INFO",
+                    title,
+                    message,
+                    read: false
+                }
+            });
+
+        } else if (targetType === "all") {
+            // Bulk send to all students
+            const students = await prisma.user.findMany({
+                where: { role: "STUDENT" },
+                select: { id: true }
+            });
+
+            if (students.length === 0) return NextResponse.json({ error: "No students found" }, { status: 404 });
+
+            // Create many notifications
+            await prisma.notification.createMany({
+                data: students.map(student => ({
+                    userId: student.id,
+                    type: type || "INFO",
+                    title,
+                    message,
+                    read: false
+                }))
+            });
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Notification Error:", error);
+        return NextResponse.json({ error: "Failed to send notification" }, { status: 500 });
     }
 }
 

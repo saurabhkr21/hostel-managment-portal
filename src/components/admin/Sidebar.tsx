@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaUsers, FaBed, FaSignOutAlt, FaFileAlt, FaCog, FaSun, FaMoon, FaUserCircle, FaChevronLeft, FaChevronRight, FaMoneyBillWave, FaCalendarAlt } from "react-icons/fa";
+import { FaHome, FaUsers, FaBed, FaSignOutAlt, FaFileAlt, FaCog, FaSun, FaMoon, FaUserCircle, FaChevronLeft, FaChevronRight, FaMoneyBillWave, FaCalendarAlt, FaBullhorn } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -39,6 +39,7 @@ export default function AdminSidebar() {
         { href: "/admin/attendance", label: "Attendance", icon: FaCalendarAlt },
         { href: "/admin/rooms", label: "Rooms", icon: FaBed },
         { href: "/admin/fees", label: "Fees", icon: FaMoneyBillWave },
+        { href: "/admin/notifications", label: "Notifications", icon: FaBullhorn },
         { href: "/admin/reports", label: "Reports", icon: FaFileAlt },
         { href: "/admin/settings", label: "Settings", icon: FaCog },
     ];

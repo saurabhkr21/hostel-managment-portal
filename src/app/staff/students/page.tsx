@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FaSearch, FaUserGraduate, FaBed, FaEye, FaIdCard, FaBuilding } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import useSWR from "swr";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 
 interface Student {
@@ -19,27 +21,14 @@ interface Student {
 }
 
 export default function StaffStudentsPage() {
-    const [students, setStudents] = useState<Student[]>([]);
-    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
+    const fetcher = (url: string) => fetch(url).then((res) => res.json());
+    const { data: students, error, isLoading } = useSWR<Student[]>("/api/staff/students", fetcher);
 
-    useEffect(() => {
-        fetchStudents();
-    }, []);
+    // Fallback empty array if undefined
+    const safeStudents = students || [];
 
-    const fetchStudents = async () => {
-        try {
-            const res = await fetch("/api/staff/students");
-            const data = await res.json();
-            if (!data.error) setStudents(data);
-        } catch (error) {
-            console.error("Error fetching students:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const filteredStudents = students.filter(
+    const filteredStudents = safeStudents.filter(
         (student) =>
             student.email.toLowerCase().includes(search.toLowerCase()) ||
             (student.name || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -81,65 +70,94 @@ export default function StaffStudentsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
-                                <AnimatePresence>
-                                    {filteredStudents.map((student) => (
-                                        <motion.tr
-                                            key={student.id}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            className="hover:bg-white dark:hover:bg-slate-700/50 hover:shadow-lg hover:z-10 relative transition-all duration-300 group"
-                                        >
+                                {isLoading ? (
+                                    // Skeleton Loading State
+                                    Array.from({ length: 5 }).map((_, i) => (
+                                        <tr key={i}>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm overflow-hidden border border-emerald-200 dark:border-emerald-800">
-                                                        {student.profile?.profileImage ? (
-                                                            <img src={student.profile.profileImage} alt={student.name || "Student"} className="w-full h-full object-cover" />
-                                                        ) : (
-                                                            student.name ? student.name.charAt(0).toUpperCase() : <FaUserGraduate />
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="font-semibold text-slate-800 dark:text-white">{student.name || "Unknown Name"}</h3>
-                                                        <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded w-fit mt-1">
-                                                            <FaIdCard size={8} />
-                                                            {student.id.slice(0, 8)}...
-                                                        </div>
+                                                    <Skeleton className="w-10 h-10 rounded-full" />
+                                                    <div className="space-y-2">
+                                                        <Skeleton className="h-4 w-32" />
+                                                        <Skeleton className="h-3 w-20" />
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="text-sm text-slate-600 dark:text-slate-300">{student.email}</span>
-                                                    {student.profile?.phone && (
-                                                        <span className="text-xs text-slate-400 dark:text-slate-500">{student.profile.phone}</span>
-                                                    )}
+                                                <div className="space-y-2">
+                                                    <Skeleton className="h-4 w-40" />
+                                                    <Skeleton className="h-3 w-24" />
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                {student.room ? (
-                                                    <span className="flex items-center gap-2 text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-900/30 border border-violet-100 dark:border-violet-800 px-3 py-1.5 rounded-lg w-fit text-sm font-medium">
-                                                        <FaBed size={14} />
-                                                        Room {student.room.roomNumber}
-                                                    </span>
-                                                ) : (
-                                                    <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg w-fit text-xs italic">
-                                                        <FaBuilding size={12} />
-                                                        Unassigned
-                                                    </span>
-                                                )}
+                                                <Skeleton className="h-8 w-24 rounded-lg" />
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <Link
-                                                    href={`/staff/students/${student.id}`}
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-violet-200 dark:hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 text-slate-600 dark:text-slate-300 rounded-xl transition-all text-sm font-medium shadow-sm hover:shadow-md hover:-translate-y-0.5"
-                                                >
-                                                    <FaEye /> View Profile
-                                                </Link>
+                                                <Skeleton className="h-9 w-28 rounded-xl ml-auto" />
                                             </td>
-                                        </motion.tr>
-                                    ))}
-                                </AnimatePresence>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <AnimatePresence>
+                                        {filteredStudents.map((student) => (
+                                            <motion.tr
+                                                key={student.id}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                className="hover:bg-white dark:hover:bg-slate-700/50 hover:shadow-lg hover:z-10 relative transition-all duration-300 group"
+                                            >
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm overflow-hidden border border-emerald-200 dark:border-emerald-800">
+                                                            {student.profile?.profileImage ? (
+                                                                <img src={student.profile.profileImage} alt={student.name || "Student"} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                student.name ? student.name.charAt(0).toUpperCase() : <FaUserGraduate />
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-semibold text-slate-800 dark:text-white">{student.name || "Unknown Name"}</h3>
+                                                            <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded w-fit mt-1">
+                                                                <FaIdCard size={8} />
+                                                                {student.id.slice(0, 8)}...
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-sm text-slate-600 dark:text-slate-300">{student.email}</span>
+                                                        {student.profile?.phone && (
+                                                            <span className="text-xs text-slate-400 dark:text-slate-500">{student.profile.phone}</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {student.room ? (
+                                                        <span className="flex items-center gap-2 text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-900/30 border border-violet-100 dark:border-violet-800 px-3 py-1.5 rounded-lg w-fit text-sm font-medium">
+                                                            <FaBed size={14} />
+                                                            Room {student.room.roomNumber}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg w-fit text-xs italic">
+                                                            <FaBuilding size={12} />
+                                                            Unassigned
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <Link
+                                                        href={`/staff/students/${student.id}`}
+                                                        className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-violet-200 dark:hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 text-slate-600 dark:text-slate-300 rounded-xl transition-all text-sm font-medium shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                                                    >
+                                                        <FaEye /> View Profile
+                                                    </Link>
+                                                </td>
+                                            </motion.tr>
+                                        ))}
+                                    </AnimatePresence>
+                                )}
                             </tbody>
                         </table>
                     </div>

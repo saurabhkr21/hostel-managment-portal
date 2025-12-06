@@ -4,7 +4,15 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaUser, FaGraduationCap, FaHome, FaAward, FaChalkboardTeacher, FaExclamationCircle, FaChartLine, FaPhone, FaEnvelope } from "react-icons/fa";
-import { ActivityAreaChart } from "@/components/admin/DashboardCharts";
+import dynamic from "next/dynamic";
+import useSWR from "swr";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load the chart to optimize initial bundle size
+const ActivityAreaChart = dynamic(() => import("@/components/admin/DashboardCharts").then(mod => mod.ActivityAreaChart), {
+    loading: () => <Skeleton className="h-[300px] w-full rounded-xl" />,
+    ssr: false
+});
 
 interface StudentInfo {
     name: string;
@@ -41,17 +49,10 @@ interface StudentInfo {
 
 export default function StudentDashboard() {
     const { data: session } = useSession();
-    const [info, setInfo] = useState<StudentInfo | null>(null);
     const [activeTab, setActiveTab] = useState("program");
 
-    useEffect(() => {
-        fetch("/api/student/info")
-            .then((res) => res.json())
-            .then((data) => {
-                if (!data.error) setInfo(data);
-            })
-            .catch((err) => console.error(err));
-    }, []);
+    const fetcher = (url: string) => fetch(url).then((res) => res.json());
+    const { data: info, error, isLoading } = useSWR<StudentInfo>("/api/student/info", fetcher);
 
     const tabs = [
         { id: "program", label: "Program & Education", icon: FaGraduationCap },
@@ -60,10 +61,32 @@ export default function StudentDashboard() {
         { id: "attendance", label: "Attendance", icon: FaChartLine },
     ];
 
-    if (!info) {
+    if (isLoading || !info) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-slate-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-600"></div>
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 md:p-8 font-sans transition-colors duration-300">
+                <div className="max-w-7xl mx-auto space-y-8">
+                    <div className="flex justify-between items-center">
+                        <div className="space-y-2">
+                            <Skeleton className="h-10 w-64" />
+                            <Skeleton className="h-6 w-48" />
+                        </div>
+                        <Skeleton className="h-12 w-48 rounded-xl" />
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="lg:col-span-4">
+                            <Skeleton className="h-[500px] w-full rounded-2xl" />
+                        </div>
+                        <div className="lg:col-span-8 space-y-6">
+                            <div className="flex gap-3">
+                                <Skeleton className="h-12 w-32 rounded-lg" />
+                                <Skeleton className="h-12 w-32 rounded-lg" />
+                                <Skeleton className="h-12 w-32 rounded-lg" />
+                            </div>
+                            <Skeleton className="h-[400px] w-full rounded-2xl" />
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -100,8 +123,9 @@ export default function StudentDashboard() {
                             className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl border border-slate-100 dark:border-slate-700 group"
                         >
                             {/* Card Header with Glassmorphism feel */}
-                            <div className="relative h-32 bg-gradient-to-r from-violet-600 to-indigo-600">
-                                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                            <div className="relative h-32 bg-gradient-to-r from-violet-600 to-indigo-600 overflow-hidden">
+                                {/* Optimized: CSS Pattern instead of blocking image */}
+                                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "24px 24px" }}></div>
                             </div>
 
                             <div className="px-6 relative pb-6">
@@ -226,10 +250,8 @@ export default function StudentDashboard() {
                                             </div>
                                         </section>
 
-                                        {/* Separator */}
                                         <div className="border-t border-slate-100 dark:border-slate-700"></div>
 
-                                        {/* Education Section */}
                                         <section>
                                             <div className="flex items-center gap-3 mb-6">
                                                 <div className="p-3 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg">

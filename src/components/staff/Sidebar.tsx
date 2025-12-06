@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaUsers, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaUserCircle, FaBed, FaCog } from "react-icons/fa";
+import { FaHome, FaUsers, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaUserCircle, FaBed, FaCog, FaComments, FaSuitcase, FaClipboardList } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
 import { useSidebar } from "@/components/providers/SidebarContext";
 import { motion } from "framer-motion";
@@ -31,9 +31,10 @@ export default function StaffSidebar() {
         { href: "/staff", label: "Dashboard", icon: FaHome },
         { href: "/staff/students", label: "Students", icon: FaUsers },
         { href: "/staff/rooms", label: "Rooms", icon: FaBed },
-        { href: "/staff/leaves", label: "Leaves", icon: FaExclamationCircle },
+        { href: "/staff/leaves", label: "Leaves", icon: FaSuitcase },
         { href: "/staff/attendance", label: "Attendance", icon: FaCalendarAlt },
-        { href: "/staff/complaints", label: "Complaints", icon: FaExclamationCircle },
+        { href: "/staff/complaints", label: "Complaints", icon: FaClipboardList },
+        { href: "/staff/messages", label: "Messages", icon: FaComments },
         { href: "/staff/settings", label: "Settings", icon: FaCog },
     ];
 
@@ -63,16 +64,22 @@ export default function StaffSidebar() {
                 </div>
 
                 {!isCollapsed && (
-                    <button onClick={toggleSidebar} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                        <FaChevronLeft />
+                    <button
+                        onClick={toggleSidebar}
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/50 transition-all shadow-sm border border-slate-200 dark:border-slate-700"
+                    >
+                        <FaChevronLeft size={12} />
                     </button>
                 )}
             </div>
 
             {isCollapsed && (
                 <div className="flex justify-center mb-4">
-                    <button onClick={toggleSidebar} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                        <FaChevronRight />
+                    <button
+                        onClick={toggleSidebar}
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/50 transition-all shadow-sm border border-slate-200 dark:border-slate-700"
+                    >
+                        <FaChevronRight size={12} />
                     </button>
                 </div>
             )}

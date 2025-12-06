@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: hostel-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=mongodb://mongo:27017/hostel_db
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=changeme_in_production_secret
+      # Add other env vars here
+    depends_on:
+      - mongo
+    networks:
+      - hostel-network
+
+  mongo:
+    container_name: hostel-mongo
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - hostel-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  hostel-network:
+    driver: bridge

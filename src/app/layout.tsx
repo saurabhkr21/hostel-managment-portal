@@ -1,6 +1,7 @@
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import AIChatWidget from "@/components/common/AIChatWidget";
 
 const outfit = Outfit({ subsets: ["latin"] });
 
@@ -17,7 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={outfit.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <AIChatWidget />
+        </Providers>
       </body>
     </html>
   );
