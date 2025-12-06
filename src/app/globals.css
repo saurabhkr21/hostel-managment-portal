@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Premium Palette */
+  --primary: 124, 58, 237;
+  /* Violet 600 */
+  --primary-dark: 109, 40, 217;
+  /* Violet 700 */
+  --secondary: 16, 185, 129;
+  /* Emerald 500 */
+  --accent: 244, 63, 94;
+  /* Rose 500 */
+
+  --background: 248, 250, 252;
+  /* Slate 50 */
+  --surface: 255, 255, 255;
+  --text-main: 15, 23, 42;
+  /* Slate 900 */
+  --text-muted: 100, 116, 139;
+  /* Slate 500 */
+}
+
+body {
+  color: rgb(var(--text-main));
+  background-color: rgb(var(--background));
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+  }
+
+  .glass-dark {
+    @apply bg-slate-900/80 backdrop-blur-lg border border-white/10 shadow-xl;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

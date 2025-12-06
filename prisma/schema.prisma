@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  STUDENT
+}
+
+enum ComplaintStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LEAVE
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile?
+  room      Room?    @relation(fields: [roomId], references: [id])
+  roomId    String?  @db.ObjectId
+  complaints Complaint[]
+  leaveRequests LeaveRequest[]
+  attendance    Attendance[]
+  
+  // AI Attendance
+  faceDescriptor Json?
+  notifications Notification[]
+}
+
+model Profile {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileImage String?
+  phone     String?
+  address   String?
+  guardianName String?
+  guardianPhone String?
+  guardianEmail String?
+  fatherName    String?
+  motherName    String?
+  gender        String?
+  dob           DateTime?
+  bloodGroup    String?
+  category      String?
+  college       String?
+  course        String?
+  branch        String?
+  yearSem       String?
+  section       String?
+  rollNo        String?
+  enrollNo      String?
+  
+  // New fields for dynamic profile
+  studentType   String?  @default("Regular")
+  highSchoolPercentage Float?
+  intermediatePercentage Float?
+  graduationPercentage Float?
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique @db.ObjectId
+}
+
+model Room {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  roomNumber String   @unique
+  capacity   Int
+  type       String   // e.g., "Single", "Double"
+  occupants  User[]
+}
+
+model Complaint {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  status      ComplaintStatus @default(PENDING)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  student     User            @relation(fields: [studentId], references: [id])
+  studentId   String          @db.ObjectId
+}
+
+model LeaveRequest {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  type        String      // "LEAVE" or "OUTPASS"
+  fromDate    DateTime
+  toDate      DateTime
+  reason      String
+  contactNo   String
+  address     String
+  status      LeaveStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  student     User        @relation(fields: [studentId], references: [id])
+  studentId   String      @db.ObjectId
+}
+
+model Attendance {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  date        DateTime
+  status      AttendanceStatus
+  markedBy    String           // Staff ID/Name
+  createdAt   DateTime         @default(now())
+  
+  student     User             @relation(fields: [studentId], references: [id])
+  studentId   String           @db.ObjectId
+
+  @@unique([studentId, date])
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
