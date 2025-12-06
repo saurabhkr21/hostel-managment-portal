@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaUser, FaGraduationCap, FaHome, FaAward, FaChalkboardTeacher, FaExclamationCircle, FaChartLine } from "react-icons/fa";
+import { FaUser, FaGraduationCap, FaHome, FaAward, FaChalkboardTeacher, FaExclamationCircle, FaChartLine, FaPhone, FaEnvelope } from "react-icons/fa";
 import { ActivityAreaChart } from "@/components/admin/DashboardCharts";
 
 interface StudentInfo {
@@ -54,120 +54,142 @@ export default function StudentDashboard() {
     }, []);
 
     const tabs = [
-        { id: "program", label: "Program and Education", color: "bg-sky-500", icon: FaGraduationCap },
-        { id: "family", label: "Family And Address", color: "bg-rose-500", icon: FaHome },
-        { id: "facility", label: "Facility And Award", color: "bg-amber-500", icon: FaAward },
-        { id: "facility", label: "Facility And Award", color: "bg-amber-500", icon: FaAward },
-        { id: "mentor", label: "Mentor And Minor/GE Details", color: "bg-emerald-500", icon: FaChalkboardTeacher },
-        { id: "attendance", label: "My Attendance", color: "bg-indigo-500", icon: FaChartLine },
+        { id: "program", label: "Program & Education", icon: FaGraduationCap },
+        { id: "family", label: "Family & Address", icon: FaHome },
+        { id: "facility", label: "Facility & Awards", icon: FaAward },
+        { id: "attendance", label: "Attendance", icon: FaChartLine },
     ];
 
     if (!info) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-slate-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-600"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6">
-            <div className="max-w-7xl mx-auto">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 md:p-8 font-sans transition-colors duration-300">
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Header Section */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex justify-between items-center mb-8"
+                    className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
                 >
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800">My Dashboard</h1>
-                        <p className="text-slate-500 mt-1">Welcome back, <span className="font-semibold text-violet-600">{session?.user?.name}</span></p>
+                        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">
+                            My Dashboard
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">
+                            Welcome back, <span className="font-semibold text-violet-600 dark:text-violet-400">{session?.user?.name}</span>
+                        </p>
                     </div>
-                    <div className="px-4 py-2 bg-white rounded-lg shadow-sm border border-slate-200 text-slate-600 text-sm font-medium hidden md:block">
+                    <div className="px-5 py-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
                 </motion.div>
 
-                <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Left Column: Profile Card */}
-                    <div className="lg:w-1/4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Left Column: Profile Card (4 cols) */}
+                    <div className="lg:col-span-4 space-y-6">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-[#8ac946] rounded-t-lg overflow-hidden shadow-lg"
+                            className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl border border-slate-100 dark:border-slate-700 group"
                         >
-                            <div className="p-8 flex flex-col items-center text-center">
-                                <div className="w-32 h-32 rounded-full border-4 border-white/30 overflow-hidden mb-4 shadow-xl">
-                                    {info.profile.profileImage ? (
-                                        <img src={info.profile.profileImage} alt={info.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400">
-                                            <FaUser size={64} />
-                                        </div>
-                                    )}
-                                </div>
-                                <h2 className="text-xl font-bold text-white uppercase tracking-wider">{info.name}</h2>
-                                <p className="text-white/80 text-sm mt-1">{info.profile.phone}</p>
-                                <p className="text-white/80 text-sm">{info.email}</p>
+                            {/* Card Header with Glassmorphism feel */}
+                            <div className="relative h-32 bg-gradient-to-r from-violet-600 to-indigo-600">
+                                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                             </div>
-                        </motion.div>
 
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="bg-white shadow-lg rounded-b-lg p-6 space-y-4 text-sm"
-                        >
-                            <div className="flex justify-between border-b border-slate-100 pb-2">
-                                <span className="font-semibold text-slate-700">Regis.Date :</span>
-                                <span className="text-slate-600">{new Date(info.createdAt).toLocaleDateString()}</span>
+                            <div className="px-6 relative pb-6">
+                                {/* Profile Image */}
+                                <div className="flex justify-center -mt-16 mb-6 relative z-10">
+                                    <div className="w-32 h-32 rounded-full border-4 border-white dark:border-slate-800 shadow-2xl overflow-hidden bg-slate-100 dark:bg-slate-700">
+                                        {info.profile.profileImage ? (
+                                            <img src={info.profile.profileImage} alt={info.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                                <FaUser size={50} />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* User Info */}
+                                <div className="text-center space-y-2">
+                                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{info.name}</h2>
+                                    <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                                        <FaEnvelope className="text-violet-400" />
+                                        <span>{info.email}</span>
+                                    </div>
+                                    <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                                        <FaPhone className="text-violet-400" />
+                                        <span>{info.profile.phone || "No Phone"}</span>
+                                    </div>
+                                    <div className="pt-4 flex justify-center gap-3">
+                                        <span className="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 rounded-full text-xs font-semibold uppercase tracking-wide border border-violet-100 dark:border-violet-800">
+                                            {info.profile.studentType || "Student"}
+                                        </span>
+                                        <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-full text-xs font-semibold uppercase tracking-wide border border-indigo-100 dark:border-indigo-800">
+                                            {info.profile.rollNo || "N/A"}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex justify-between border-b border-slate-100 pb-2">
-                                <span className="font-semibold text-slate-700">Student ID :</span>
-                                <span className="text-slate-600">{info.profile.enrollNo || "N/A"}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-100 pb-2">
-                                <span className="font-semibold text-slate-700">Roll No :</span>
-                                <span className="text-slate-600 font-bold">{info.profile.rollNo || "N/A"}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-100 pb-2">
-                                <span className="font-semibold text-slate-700">Father :</span>
-                                <span className="text-slate-600 uppercase">{info.profile.fatherName || "N/A"}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-100 pb-2">
-                                <span className="font-semibold text-slate-700">Mother :</span>
-                                <span className="text-slate-600 uppercase">{info.profile.motherName || "N/A"}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-100 pb-2">
-                                <span className="font-semibold text-slate-700">DOB :</span>
-                                <span className="text-slate-600">{info.profile.dob ? new Date(info.profile.dob).toLocaleDateString() : "N/A"}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-100 pb-2">
-                                <span className="font-semibold text-slate-700">Blood Group :</span>
-                                <span className="text-slate-600">{info.profile.bloodGroup || "N/A"}</span>
+
+                            {/* Divider */}
+                            <div className="h-px bg-slate-100 dark:bg-slate-700 mx-6"></div>
+
+                            {/* Essential Details Grid */}
+                            <div className="p-6 space-y-4">
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Joined Date</span>
+                                    <span className="text-slate-700 dark:text-slate-200 font-semibold">{new Date(info.createdAt).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Student ID</span>
+                                    <span className="text-slate-700 dark:text-slate-200 font-semibold">{info.profile.enrollNo || "N/A"}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Room No</span>
+                                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-xs font-bold">
+                                        {info.room?.roomNumber || "Unassigned"}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Blood Group</span>
+                                    <span className="text-rose-600 dark:text-rose-400 font-bold">{info.profile.bloodGroup || "N/A"}</span>
+                                </div>
                             </div>
                         </motion.div>
                     </div>
 
-                    {/* Right Column: Details Tabs */}
-                    <div className="lg:w-3/4">
-                        {/* Tabs Header */}
-                        <div className="flex flex-wrap shadow-sm rounded-t-lg overflow-hidden">
+                    {/* Right Column: Content Tabs (8 cols) */}
+                    <div className="lg:col-span-8 space-y-6">
+                        {/* Custom Tab Navigation */}
+                        <div className="bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-wrap gap-3">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`flex-1 py-4 px-4 text-sm font-medium text-white transition-all duration-200 
-                                        ${activeTab === tab.id ? tab.color : "bg-slate-400 hover:bg-slate-500"}
-                                        ${activeTab === tab.id ? "shadow-inner" : ""}
+                                    className={`
+                                        flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-300
+                                        ${activeTab === tab.id
+                                            ? "bg-violet-600 text-white shadow-lg shadow-violet-200 dark:shadow-none"
+                                            : "bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200 border border-transparent hover:border-slate-200 dark:hover:border-slate-600"}
                                     `}
                                 >
-                                    {tab.label}
+                                    <tab.icon className={activeTab === tab.id ? "text-white" : "text-slate-500 dark:text-slate-400"} />
+                                    <span className="whitespace-nowrap">{tab.label}</span>
                                 </button>
                             ))}
                         </div>
 
-                        {/* Tab Content */}
-                        <div className="bg-white shadow-lg p-6 min-h-[500px]">
+                        {/* Tab Panels */}
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 min-h-[500px] overflow-hidden relative">
                             <AnimatePresence mode="wait">
                                 {activeTab === "program" && (
                                     <motion.div
@@ -175,90 +197,62 @@ export default function StudentDashboard() {
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
-                                        className="space-y-8"
+                                        transition={{ duration: 0.3 }}
+                                        className="p-6 md:p-8 space-y-8"
                                     >
-                                        {/* Program Info Section */}
-                                        <div className="rounded-lg border border-slate-200 overflow-hidden">
-                                            <div className="bg-[#8ac946] px-4 py-3 border-b border-white/20">
-                                                <h3 className="text-white font-bold flex items-center gap-2">
-                                                    <FaGraduationCap /> Program Information
-                                                </h3>
+                                        {/* Program Section */}
+                                        <section>
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="p-3 bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 rounded-lg">
+                                                    <FaGraduationCap size={24} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Academic Information</h3>
                                             </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-white divide-y md:divide-y-0 text-sm">
 
-                                                <div className="p-3 border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/50">
-                                                    <span className="block font-bold text-slate-700 mb-1">Student Type :</span>
-                                                    <span className="text-slate-600">{info.profile.studentType || "Regular"}</span>
-                                                </div>
-                                                <div className="p-3 border-b md:border-b-0 md:border-r border-slate-100">
-                                                    <span className="block font-bold text-slate-700 mb-1">University :</span>
-                                                    <span className="text-slate-600">{info.profile.college || "Quantum University"}</span>
-                                                </div>
-                                                <div className="p-3 border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/50">
-                                                    <span className="block font-bold text-slate-700 mb-1">College :</span>
-                                                    <span className="text-slate-600">{info.profile.college || "Quantum School of Technology"}</span>
-                                                </div>
-                                                <div className="p-3">
-                                                    {/* Empty cell for layout balance */}
-                                                </div>
-
-                                                {/* Row 2 */}
-                                                <div className="p-3 border-t border-r border-slate-100 bg-emerald-50/30">
-                                                    <span className="block font-bold text-slate-700 mb-1">CourseType :</span>
-                                                    <span className="text-slate-600">Engineering</span>
-                                                </div>
-                                                <div className="p-3 border-t border-r border-slate-100 bg-emerald-50/30">
-                                                    <span className="block font-bold text-slate-700 mb-1">Course :</span>
-                                                    <span className="text-slate-600 text-xs">{info.profile.course || "N/A"}</span>
-                                                </div>
-                                                <div className="p-3 border-t border-r border-slate-100 bg-emerald-50/30">
-                                                    <span className="block font-bold text-slate-700 mb-1">Current Year/Sem :</span>
-                                                    <span className="text-slate-600">{info.profile.yearSem || "N/A"}</span>
-                                                </div>
-                                                <div className="p-3 border-t border-slate-100 bg-emerald-50/30">
-                                                    {/* Empty */}
-                                                </div>
-
-                                                {/* Row 3 */}
-                                                <div className="p-3 border-t border-r border-slate-100">
-                                                    <span className="block font-bold text-slate-700 mb-1">Branch :</span>
-                                                    <span className="text-slate-600 text-xs">{info.profile.branch || "N/A"}</span>
-                                                </div>
-                                                <div className="p-3 border-t border-r border-slate-100">
-                                                    <span className="block font-bold text-slate-700 mb-1">Section :</span>
-                                                    <span className="text-slate-600">{info.profile.section || "N/A"}</span>
-                                                </div>
-                                                <div className="p-3 border-t border-r border-slate-100">
-                                                    <span className="block font-bold text-slate-700 mb-1">SetAssign :</span>
-                                                    <span className="text-slate-600">-</span>
-                                                </div>
-                                                <div className="p-3 border-t border-slate-100">
-                                                </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {[
+                                                    { label: "University", value: info.profile.college || "Quantum University" },
+                                                    { label: "Course", value: info.profile.course },
+                                                    { label: "Branch", value: info.profile.branch },
+                                                    { label: "Current Year/Sem", value: info.profile.yearSem },
+                                                    { label: "Section", value: info.profile.section },
+                                                    { label: "Student Type", value: info.profile.studentType || "Regular" },
+                                                ].map((item, idx) => (
+                                                    <div key={idx} className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600 hover:border-violet-200 dark:hover:border-violet-700 transition-colors">
+                                                        <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{item.label}</span>
+                                                        <span className="text-slate-800 dark:text-slate-200 font-medium text-lg">{item.value || "N/A"}</span>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        </div>
+                                        </section>
 
-                                        {/* Educational Info Section */}
-                                        <div className="rounded-lg border border-slate-200 overflow-hidden">
-                                            <div className="bg-[#d97020] px-4 py-3 border-b border-white/20">
-                                                <h3 className="text-white font-bold flex items-center gap-2">
-                                                    <FaAward /> Educational Information
-                                                </h3>
+                                        {/* Separator */}
+                                        <div className="border-t border-slate-100 dark:border-slate-700"></div>
+
+                                        {/* Education Section */}
+                                        <section>
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="p-3 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg">
+                                                    <FaAward size={24} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Prior Education</h3>
                                             </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-3 bg-white divide-x border-b border-slate-100">
-                                                <div className="p-4">
-                                                    <span className="block font-bold text-slate-700 mb-2">High School % :</span>
-                                                    <span className="text-slate-600 font-medium">{info.profile.highSchoolPercentage ? `${info.profile.highSchoolPercentage}%` : "N/A"}</span>
-                                                </div>
-                                                <div className="p-4">
-                                                    <span className="block font-bold text-slate-700 mb-2">Intermediate % :</span>
-                                                    <span className="text-slate-600 font-medium">{info.profile.intermediatePercentage ? `${info.profile.intermediatePercentage}%` : "N/A"}</span>
-                                                </div>
-                                                <div className="p-4">
-                                                    <span className="block font-bold text-slate-700 mb-2">Graduation % :</span>
-                                                    <span className="text-slate-600 font-medium">{info.profile.graduationPercentage ? `${info.profile.graduationPercentage}%` : "N/A"}</span>
-                                                </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                {[
+                                                    { label: "High School", value: info.profile.highSchoolPercentage, suffix: "%", color: "border-l-4 border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/10 dark:border-emerald-600" },
+                                                    { label: "Intermediate", value: info.profile.intermediatePercentage, suffix: "%", color: "border-l-4 border-blue-400 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-600" },
+                                                    { label: "Graduation", value: info.profile.graduationPercentage, suffix: " CGPA", color: "border-l-4 border-violet-400 bg-violet-50/50 dark:bg-violet-900/10 dark:border-violet-600" },
+                                                ].map((edu, idx) => (
+                                                    <div key={idx} className={`p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 transition-transform hover:scale-105 duration-300 ${edu.color}`}>
+                                                        <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{edu.label}</span>
+                                                        <span className="text-3xl font-extrabold text-slate-800 dark:text-white">
+                                                            {edu.value ? `${edu.value}${edu.suffix}` : "N/A"}
+                                                        </span>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        </div>
+                                        </section>
                                     </motion.div>
                                 )}
 
@@ -268,51 +262,65 @@ export default function StudentDashboard() {
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
-                                        className="space-y-6"
+                                        className="p-6 md:p-8 space-y-8"
                                     >
-                                        <div className="rounded-lg border border-slate-200 overflow-hidden">
-                                            <div className="bg-rose-500 px-4 py-3">
-                                                <h3 className="text-white font-bold flex items-center gap-2"><FaHome /> Permanent Address</h3>
-                                            </div>
-                                            <div className="p-6 bg-white">
-                                                <p className="text-slate-600">{info.profile.address || "No address details available."}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="rounded-lg border border-slate-200 overflow-hidden">
-                                            <div className="bg-rose-500 px-4 py-3">
-                                                <h3 className="text-white font-bold flex items-center gap-2"><FaUser /> Guardian Details</h3>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-white">
-                                                <div>
-                                                    <span className="block text-xs font-bold text-slate-500 uppercase">Guardian Name</span>
-                                                    <span className="text-slate-700 font-medium">{info.profile.guardianName || "N/A"}</span>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div className="space-y-4">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <div className="p-2 bg-rose-100 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 rounded-md">
+                                                        <FaHome size={20} />
+                                                    </div>
+                                                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Permanent Address</h3>
                                                 </div>
-                                                <div>
-                                                    <span className="block text-xs font-bold text-slate-500 uppercase">Guardian Phone</span>
-                                                    <span className="text-slate-700 font-medium">{info.profile.guardianPhone || "N/A"}</span>
+                                                <div className="bg-slate-50 dark:bg-slate-700/50 p-6 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 leading-relaxed italic">
+                                                    {info.profile.address || "No address details available."}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-4">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <div className="p-2 bg-blue-100 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 rounded-md">
+                                                        <FaUser size={20} />
+                                                    </div>
+                                                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Parent/Guardian</h3>
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-800/50 p-5 rounded-xl border border-slate-200 dark:border-slate-600 shadow-sm space-y-4">
+                                                    <div>
+                                                        <span className="text-xs text-slate-400 uppercase font-semibold">Father's Name</span>
+                                                        <p className="font-medium text-slate-800 dark:text-slate-200">{info.profile.fatherName || "N/A"}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-xs text-slate-400 uppercase font-semibold">Mother's Name</span>
+                                                        <p className="font-medium text-slate-800 dark:text-slate-200">{info.profile.motherName || "N/A"}</p>
+                                                    </div>
+                                                    <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
+                                                        <span className="text-xs text-slate-400 uppercase font-semibold">Guardian Contact</span>
+                                                        <div className="flex justify-between items-center mt-1">
+                                                            <p className="font-medium text-slate-800 dark:text-slate-200">{info.profile.guardianName || "N/A"}</p>
+                                                            <span className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">{info.profile.guardianPhone || "N/A"}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </motion.div>
                                 )}
 
-                                {/* Placeholders for other tabs */}
-                                {(activeTab === "facility" || activeTab === "mentor") && (
+                                {activeTab === "facility" && (
                                     <motion.div
-                                        key="other"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="flex items-center justify-center h-64 text-slate-400"
+                                        key="placeholder"
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.05 }}
+                                        className="flex flex-col items-center justify-center h-[500px] text-slate-400 dark:text-slate-500"
                                     >
-                                        <div className="text-center">
-                                            <FaExclamationCircle className="mx-auto text-4xl mb-2 opacity-50" />
-                                            <p>No details available for this section.</p>
+                                        <div className="p-6 bg-slate-50 dark:bg-slate-700 rounded-full mb-4 animate-bounce">
+                                            <FaExclamationCircle className="text-4xl text-slate-300 dark:text-slate-500" />
                                         </div>
+                                        <h3 className="text-lg font-medium text-slate-600 dark:text-slate-400">No Information Available</h3>
+                                        <p className="text-sm">There are no details to show for this section yet.</p>
                                     </motion.div>
                                 )}
-
 
                                 {activeTab === "attendance" && (
                                     <motion.div
@@ -320,39 +328,45 @@ export default function StudentDashboard() {
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
-                                        className="space-y-6"
+                                        className="p-6 md:p-8 space-y-6"
                                     >
-                                        <div className="bg-white p-6 rounded-lg border border-slate-200">
-                                            <h3 className="text-lg font-bold text-slate-800 mb-4">Monthly Attendance Trend</h3>
-                                            <ActivityAreaChart data={[
-                                                { name: 'Week 1', value: 90 },
-                                                { name: 'Week 2', value: 85 },
-                                                { name: 'Week 3', value: 95 },
-                                                { name: 'Week 4', value: 100 },
-                                            ]} />
-                                            <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-                                                <div className="p-3 bg-emerald-50 rounded-lg">
-                                                    <span className="block text-2xl font-bold text-emerald-600">92%</span>
-                                                    <span className="text-xs text-slate-500">Present</span>
-                                                </div>
-                                                <div className="p-3 bg-rose-50 rounded-lg">
-                                                    <span className="block text-2xl font-bold text-rose-600">5%</span>
-                                                    <span className="text-xs text-slate-500">Absent</span>
-                                                </div>
-                                                <div className="p-3 bg-amber-50 rounded-lg">
-                                                    <span className="block text-2xl font-bold text-amber-600">3%</span>
-                                                    <span className="text-xs text-slate-500">Leave</span>
-                                                </div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-white">Attendance Overview</h3>
+                                            <span className="px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 rounded-full text-sm font-semibold">Current Semester</span>
+                                        </div>
+
+                                        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                                            <div className="h-[300px] w-full">
+                                                <ActivityAreaChart data={[
+                                                    { name: 'Week 1', value: 90 },
+                                                    { name: 'Week 2', value: 85 },
+                                                    { name: 'Week 3', value: 95 },
+                                                    { name: 'Week 4', value: 100 },
+                                                ]} />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-3 gap-6">
+                                            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800 text-center">
+                                                <span className="block text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">92%</span>
+                                                <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Present</span>
+                                            </div>
+                                            <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800 text-center">
+                                                <span className="block text-3xl font-extrabold text-rose-600 dark:text-rose-400">5%</span>
+                                                <span className="text-sm font-medium text-rose-800 dark:text-rose-300">Absent</span>
+                                            </div>
+                                            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 text-center">
+                                                <span className="block text-3xl font-extrabold text-amber-600 dark:text-amber-400">3%</span>
+                                                <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Leave</span>
                                             </div>
                                         </div>
                                     </motion.div>
                                 )}
-
                             </AnimatePresence>
                         </div>
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

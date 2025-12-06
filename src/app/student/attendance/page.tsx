@@ -65,13 +65,13 @@ export default function StudentAttendancePage() {
     const getStatusColor = (status: string) => {
         switch (status) {
             case "PRESENT":
-                return "bg-emerald-50 text-emerald-700 border-emerald-200";
+                return "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800";
             case "ABSENT":
-                return "bg-rose-50 text-rose-700 border-rose-200";
+                return "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800";
             case "LEAVE":
-                return "bg-amber-50 text-amber-700 border-amber-200";
+                return "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800";
             default:
-                return "bg-slate-50 text-slate-700 border-slate-200";
+                return "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-700";
         }
     };
 
@@ -80,19 +80,19 @@ export default function StudentAttendancePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay }}
-            className={`p-6 rounded-xl shadow-sm border border-slate-200 bg-white relative overflow-hidden group`}
+            className={`p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 relative overflow-hidden group`}
         >
             <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-10 transition-transform group-hover:scale-110 ${color}`}></div>
             <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">{title}</p>
-                    <div className={`p-2 rounded-lg bg-opacity-10 ${color.replace('bg-', 'text-').replace('500', '600')}`}>
-                        <Icon className={`text-xl ${color.replace('bg-', 'text-').replace('500', '600')}`} />
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{title}</p>
+                    <div className={`p-2 rounded-lg bg-opacity-10 ${color.replace('bg-', 'text-').replace('500', '600')} dark:${color.replace('bg-', 'text-').replace('500', '400')}`}>
+                        <Icon className={`text-xl ${color.replace('bg-', 'text-').replace('500', '600')} dark:${color.replace('bg-', 'text-').replace('500', '400')}`} />
                     </div>
                 </div>
-                <h3 className="text-3xl font-bold text-slate-800">{value}</h3>
+                <h3 className="text-3xl font-bold text-slate-800 dark:text-white">{value}</h3>
                 {stats.total > 0 && (
-                    <p className="text-xs text-slate-400 mt-2">
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
                         {((value / stats.total) * 100).toFixed(1)}% of total days
                     </p>
                 )}
@@ -101,14 +101,14 @@ export default function StudentAttendancePage() {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 transition-colors duration-300">
             <div className="max-w-6xl mx-auto space-y-8">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800">Attendance Overview</h1>
-                        <p className="text-slate-500 mt-1">Track your daily attendance performance</p>
+                        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Attendance Overview</h1>
+                        <p className="text-slate-500 dark:text-slate-400 mt-1">Track your daily attendance performance</p>
                     </div>
-                    <div className="px-4 py-2 bg-white rounded-lg border border-slate-200 text-sm font-medium text-slate-600 shadow-sm">
+                    <div className="px-4 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300 shadow-sm">
                         Total Days: {stats.total}
                     </div>
                 </div>
@@ -143,10 +143,10 @@ export default function StudentAttendancePage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden"
+                    className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
                 >
-                    <div className="p-6 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-                        <h2 className="font-bold text-slate-700 text-lg flex items-center gap-2">
+                    <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
+                        <h2 className="font-bold text-slate-700 dark:text-slate-200 text-lg flex items-center gap-2">
                             <FaCalendarAlt className="text-violet-500" />
                             Attendance History
                         </h2>
@@ -154,25 +154,25 @@ export default function StudentAttendancePage() {
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-slate-50/50 border-b border-slate-100">
+                            <thead className="bg-slate-50/50 dark:bg-slate-700/30 border-b border-slate-100 dark:border-slate-700">
                                 <tr>
-                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Day</th>
-                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Marked By</th>
+                                    <th className="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
+                                    <th className="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Day</th>
+                                    <th className="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                                    <th className="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Marked By</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                                 {attendance.map((record, index) => (
-                                    <tr key={record.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="p-4 font-medium text-slate-700">
+                                    <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                                        <td className="p-4 font-medium text-slate-700 dark:text-slate-300">
                                             {new Date(record.date).toLocaleDateString(undefined, {
                                                 year: "numeric",
                                                 month: "short",
                                                 day: "numeric",
                                             })}
                                         </td>
-                                        <td className="p-4 text-slate-600">
+                                        <td className="p-4 text-slate-600 dark:text-slate-400">
                                             {new Date(record.date).toLocaleDateString(undefined, { weekday: "long" })}
                                         </td>
                                         <td className="p-4">
@@ -181,7 +181,7 @@ export default function StudentAttendancePage() {
                                                 {record.status}
                                             </span>
                                         </td>
-                                        <td className="p-4 text-slate-500 text-sm">
+                                        <td className="p-4 text-slate-500 dark:text-slate-500 text-sm">
                                             {record.markedBy}
                                         </td>
                                     </tr>
@@ -190,11 +190,11 @@ export default function StudentAttendancePage() {
                         </table>
                         {attendance.length === 0 && !loading && (
                             <div className="p-12 text-center">
-                                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 dark:text-slate-500">
                                     <FaCalendarAlt size={24} />
                                 </div>
-                                <h3 className="text-slate-800 font-medium mb-1">No attendance records found</h3>
-                                <p className="text-slate-500 text-sm">Your attendance history will appear here once marked.</p>
+                                <h3 className="text-slate-800 dark:text-white font-medium mb-1">No attendance records found</h3>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm">Your attendance history will appear here once marked.</p>
                             </div>
                         )}
                     </div>

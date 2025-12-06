@@ -5,13 +5,26 @@ import { useEffect, useState } from "react";
 import { FaUserGraduate, FaExclamationCircle, FaClock } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { OccupancyBarChart } from "@/components/admin/DashboardCharts";
+
+interface DashboardStats {
+    students: number;
+    complaints: { pending: number; resolved: number; total: number };
+    leaves: { pending: number; approved: number; rejected: number; total: number };
+    recentActivity: {
+        complaints: { id: string; title: string; createdAt: string; type: string; student: { name: string; profile: { profileImage: string } } }[];
+        leaves: { id: string; reason: string; fromDate: string; student: { name: string; profile: { profileImage: string } } }[];
+    };
+    occupancy?: { name: string; occupied: number; capacity: number }[];
+}
 
 export default function StaffDashboard() {
     const { data: session } = useSession();
-    const [stats, setStats] = useState({
+    const [stats, setStats] = useState<DashboardStats>({
         students: 0,
         complaints: { pending: 0, resolved: 0, total: 0 },
         leaves: { pending: 0, approved: 0, rejected: 0, total: 0 },
+        recentActivity: { complaints: [], leaves: [] }
     });
 
     useEffect(() => {
@@ -25,12 +38,7 @@ export default function StaffDashboard() {
 
     const container = {
         hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
+        show: { opacity: 1, transition: { staggerChildren: 0.1 } }
     };
 
     const item = {
@@ -39,8 +47,8 @@ export default function StaffDashboard() {
     };
 
     const complaintData = [
-        { name: "Pending", value: stats.complaints.pending, color: "#f43f5e" }, // Rose-500
-        { name: "Resolved", value: stats.complaints.resolved, color: "#10b981" }, // Emerald-500
+        { name: "Pending", value: stats.complaints.pending, color: "#f43f5e" },
+        { name: "Resolved", value: stats.complaints.resolved, color: "#10b981" },
     ];
 
     const leaveData = [
@@ -50,160 +58,229 @@ export default function StaffDashboard() {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6 md:p-8">
-            <div className="max-w-7xl mx-auto">
+        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 p-6 md:p-8 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Hero Section */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4"
+                    className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4"
                 >
                     <div>
-                        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">
-                            Warden/Supervisor Dashboard
+                        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
+                            Dashboard
                         </h1>
-                        <p className="text-slate-500 mt-2 text-lg">
-                            Welcome back, <span className="font-bold text-slate-800">{session?.user?.name}</span>
+                        <p className="text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Welcome back, {session?.user?.name}
                         </p>
                     </div>
-                    <div className="px-5 py-2.5 bg-white rounded-xl shadow-sm border border-slate-200 text-slate-600 text-sm font-medium flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    <div className="text-right hidden md:block">
+                        <p className="text-sm font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Today's Date</p>
+                        <p className="text-xl font-bold text-slate-700 dark:text-slate-200">
+                            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                        </p>
                     </div>
                 </motion.div>
 
+                {/* Stats Grid */}
+                {/* Stats Grid */}
                 <motion.div
                     variants={container}
                     initial="hidden"
                     animate="show"
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-5"
                 >
-                    <motion.div variants={item} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-all group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <motion.div variants={item} className="bg-gradient-to-br from-violet-600 to-indigo-700 rounded-xl p-4 text-white shadow-lg shadow-violet-200 dark:shadow-none relative overflow-hidden group transform hover:scale-[1.02] hover:shadow-2xl transition-all duration-300">
+                        <div className="absolute right-0 top-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
                         <div className="relative z-10">
-                            <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4">
-                                <FaUserGraduate size={24} />
+                            <div className="flex justify-between items-start mb-1.5">
+                                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                                    <FaUserGraduate size={18} />
+                                </div>
+                                <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wide">Total</span>
                             </div>
-                            <p className="text-slate-500 font-medium text-sm">Total Students</p>
-                            <h3 className="text-3xl font-bold text-slate-800 mt-1">{stats.students}</h3>
+                            <h3 className="text-2xl font-bold mb-0.5">{stats.students}</h3>
+                            <p className="text-violet-100 text-xs font-medium">Registered Students</p>
                         </div>
                     </motion.div>
 
-                    <motion.div variants={item} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-all group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rose-50 to-rose-100 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <motion.div variants={item} className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 relative overflow-hidden group hover:border-rose-100 dark:hover:border-rose-900/50 transform hover:scale-[1.02] hover:shadow-2xl transition-all duration-300">
+                        <div className="absolute right-0 top-0 w-20 h-20 bg-rose-50 dark:bg-rose-900/10 rounded-bl-full -mr-4 -mt-4 group-hover:bg-rose-100 dark:group-hover:bg-rose-900/20 transition-colors pointer-events-none"></div>
                         <div className="relative z-10">
-                            <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-4">
-                                <FaExclamationCircle size={24} />
+                            <div className="flex justify-between items-start mb-1.5">
+                                <div className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-lg">
+                                    <FaExclamationCircle size={18} />
+                                </div>
+                                <span className="bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">Action Needed</span>
                             </div>
-                            <p className="text-slate-500 font-medium text-sm">Pending Complaints</p>
-                            <h3 className="text-3xl font-bold text-slate-800 mt-1">{stats.complaints.pending}</h3>
+                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-0.5">{stats.complaints.pending}</h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Pending Complaints</p>
                         </div>
                     </motion.div>
 
-                    <motion.div variants={item} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-all group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-50 to-amber-100 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <motion.div variants={item} className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 relative overflow-hidden group hover:border-amber-100 dark:hover:border-amber-900/50 transform hover:scale-[1.02] hover:shadow-2xl transition-all duration-300">
+                        <div className="absolute right-0 top-0 w-20 h-20 bg-amber-50 dark:bg-amber-900/10 rounded-bl-full -mr-4 -mt-4 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/20 transition-colors pointer-events-none"></div>
                         <div className="relative z-10">
-                            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-4">
-                                <FaClock size={24} />
+                            <div className="flex justify-between items-start mb-1.5">
+                                <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg">
+                                    <FaClock size={18} />
+                                </div>
+                                <span className="bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">Review</span>
                             </div>
-                            <p className="text-slate-500 font-medium text-sm">Pending Leaves</p>
-                            <h3 className="text-3xl font-bold text-slate-800 mt-1">{stats.leaves.pending}</h3>
+                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-0.5">{stats.leaves.pending}</h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Leave Requests</p>
                         </div>
                     </motion.div>
                 </motion.div>
 
-                {/* Charts Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Charts Section */}
+                    <div className="space-y-8">
+                        {/* Occupancy Chart */}
+                        {stats.occupancy && (
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700"
+                            >
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Room Occupancy (By Block)</h3>
+                                <OccupancyBarChart data={stats.occupancy} />
+                            </motion.div>
+                        )}
+
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.25 }}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                        >
+                            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Complaint Status</h3>
+                                <div className="h-64">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={complaintData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                                stroke="none"
+                                            >
+                                                {complaintData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: '#fff' }} itemStyle={{ color: '#1e293b' }} />
+                                            <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Leave Requests</h3>
+                                <div className="h-64">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={leaveData}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#94a3b8" strokeOpacity={0.2} />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                            <Tooltip cursor={{ fill: '#f1f5f9', opacity: 0.2 }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: '#fff' }} itemStyle={{ color: '#1e293b' }} />
+                                            <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={32}>
+                                                {leaveData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={
+                                                        entry.name === 'Pending' ? '#fbbf24' :
+                                                            entry.name === 'Approved' ? '#34d399' : '#f43f5e'
+                                                    } />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    {/* Recent Alerts Feed */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6"
+                    >
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Recent Alerts</h3>
+                        <div className="space-y-4">
+                            {stats.recentActivity.complaints.length > 0 && (
+                                <div className="space-y-3">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">New Complaints</p>
+                                    {stats.recentActivity.complaints.map((c) => (
+                                        <div key={c.id} className="flex gap-3 items-start p-3 bg-rose-50 dark:bg-rose-900/20 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:scale-[1.01] transition-all cursor-pointer">
+                                            <div className="mt-1 w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">{c.title}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">by {c.student.name} • {new Date(c.createdAt).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {stats.recentActivity.leaves.length > 0 && (
+                                <div className="space-y-3 mt-6">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">New Leave Requests</p>
+                                    {stats.recentActivity.leaves.map((l) => (
+                                        <div key={l.id} className="flex gap-3 items-start p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900/30 hover:scale-[1.01] transition-all cursor-pointer">
+                                            <div className="mt-1 w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">{l.reason}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">by {l.student.name} • From: {new Date(l.fromDate).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {stats.recentActivity.complaints.length === 0 && stats.recentActivity.leaves.length === 0 && (
+                                <div className="text-center py-8 text-slate-400 text-sm">
+                                    No recent alerts to show.
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* Quick Actions */}
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">Quick Actions</h2>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10"
+                    transition={{ delay: 0.4 }}
+                    className="grid grid-cols-1 md:grid-cols-4 gap-6"
                 >
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                        <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            <FaExclamationCircle className="text-violet-500" />
-                            Complaints Resolution
-                        </h3>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={complaintData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {complaintData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                    <Legend verticalAlign="bottom" height={36} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                    <a href="/staff/students" className="p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-violet-300 dark:hover:border-violet-700 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4 group">
+                        <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FaUserGraduate size={18} />
                         </div>
-                    </div>
-
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                        <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            <FaClock className="text-amber-500" />
-                            Leave Request Status
-                        </h3>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={leaveData}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
-                                    <Tooltip cursor={{ fill: '#f1f5f9' }} />
-                                    <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={40}>
-                                        {
-                                            leaveData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={
-                                                    entry.name === 'Pending' ? '#f59e0b' :
-                                                        entry.name === 'Approved' ? '#10b981' :
-                                                            '#f43f5e'
-                                                } />
-                                            ))
-                                        }
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </motion.div>
-
-                <h2 className="text-xl font-bold text-slate-800 mb-6">Quick Actions</h2>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                >
-                    <a href="/staff/students" className="p-6 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-2xl shadow-lg shadow-violet-200 text-white hover:scale-[1.02] transition-transform group">
-                        <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4 backdrop-blur-sm">
-                            <FaUserGraduate size={24} className="text-white" />
-                        </div>
-                        <h3 className="text-lg font-bold">Manage Students</h3>
-                        <p className="text-white/80 text-sm mt-1">View and edit student profiles</p>
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">Student Directory</span>
                     </a>
 
-                    <a href="/staff/leaves" className="p-6 bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-violet-200 hover:shadow-md transition-all group">
-                        <div className="bg-amber-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-amber-600 group-hover:scale-110 transition-transform">
-                            <FaClock size={24} />
+                    <a href="/staff/leaves" className="p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-amber-300 dark:hover:border-amber-700 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4 group">
+                        <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FaClock size={18} />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 group-hover:text-amber-600 transition-colors">Leave Requests</h3>
-                        <p className="text-slate-500 text-sm mt-1">Approve or reject leaves</p>
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">Approve Leaves</span>
                     </a>
 
-                    <a href="/staff/complaints" className="p-6 bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-violet-200 hover:shadow-md transition-all group">
-                        <div className="bg-rose-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-rose-600 group-hover:scale-110 transition-transform">
-                            <FaExclamationCircle size={24} />
+                    <a href="/staff/complaints" className="p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-rose-300 dark:hover:border-rose-700 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4 group">
+                        <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FaExclamationCircle size={18} />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 group-hover:text-rose-600 transition-colors">Complaints</h3>
-                        <p className="text-slate-500 text-sm mt-1">Resolve student issues</p>
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">View Complaints</span>
                     </a>
                 </motion.div>
             </div>

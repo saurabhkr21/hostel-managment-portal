@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaUsers, FaBed, FaSignOutAlt, FaFileAlt, FaCog, FaSun, FaMoon, FaUserCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaHome, FaUsers, FaBed, FaSignOutAlt, FaFileAlt, FaCog, FaSun, FaMoon, FaUserCircle, FaChevronLeft, FaChevronRight, FaMoneyBillWave, FaCalendarAlt } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -14,14 +14,31 @@ export default function AdminSidebar() {
     const { data: session } = useSession();
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const [profileImage, setProfileImage] = useState<string | null>(null);
 
     // Icons need to be explicitly accessed
     const { isCollapsed, toggleSidebar } = useSidebar();
 
+    useEffect(() => {
+        setMounted(true);
+        if (session?.user) {
+            fetch("/api/me")
+                .then(res => res.json())
+                .then(data => {
+                    if (data?.profile?.profileImage) {
+                        setProfileImage(data.profile.profileImage);
+                    }
+                })
+                .catch(err => console.error("Failed to fetch profile", err));
+        }
+    }, [session]);
+
     const links = [
         { href: "/admin", label: "Dashboard", icon: FaHome },
         { href: "/admin/users", label: "Users", icon: FaUsers },
+        { href: "/admin/attendance", label: "Attendance", icon: FaCalendarAlt },
         { href: "/admin/rooms", label: "Rooms", icon: FaBed },
+        { href: "/admin/fees", label: "Fees", icon: FaMoneyBillWave },
         { href: "/admin/reports", label: "Reports", icon: FaFileAlt },
         { href: "/admin/settings", label: "Settings", icon: FaCog },
     ];
@@ -30,7 +47,8 @@ export default function AdminSidebar() {
         <motion.div
             initial={false}
             animate={{ width: isCollapsed ? 80 : 288 }}
-            className="bg-slate-900 border-r border-slate-800 text-white min-h-screen flex flex-col shadow-2xl fixed left-0 top-0 z-50 overflow-hidden transition-all duration-300"
+            transition={{ duration: 0.15, ease: "easeInOut" }}
+            className="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white min-h-screen flex flex-col shadow-xl fixed left-0 top-0 z-50 overflow-hidden"
         >
             {/* Background Gradient Blob */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none opacity-20">
@@ -39,26 +57,26 @@ export default function AdminSidebar() {
             </div>
 
             <div className="p-4 z-10 flex flex-col h-full">
-                {/* Brand & Toggle */}
-                <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} mb-8 px-2`}>
-                    {!isCollapsed && (
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
-                                <span className="text-xl font-bold text-white">H</span>
+                {/* User Profile Header */}
+                <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} mb-6 px-2`}>
+                    <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center w-full' : ''}`}>
+                        <div className="w-10 h-10 min-w-[2.5rem] rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold shadow-md">
+                            {profileImage ? (
+                                <img src={profileImage} alt="User" className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                                <FaUserCircle size={24} />
+                            )}
+                        </div>
+                        {!isCollapsed && (
+                            <div className="overflow-hidden">
+                                <p className="font-semibold text-sm truncate text-slate-800 dark:text-white">{session?.user?.name || "Admin User"}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{session?.user?.email}</p>
                             </div>
-                            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                                Admin
-                            </h1>
-                        </div>
-                    )}
-                    {isCollapsed && (
-                        <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg cursor-pointer" onClick={toggleSidebar}>
-                            <span className="text-xl font-bold text-white">H</span>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
                     {!isCollapsed && (
-                        <button onClick={toggleSidebar} className="p-2 text-slate-400 hover:text-white transition-colors">
+                        <button onClick={toggleSidebar} className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors">
                             <FaChevronLeft />
                         </button>
                     )}
@@ -66,29 +84,11 @@ export default function AdminSidebar() {
 
                 {isCollapsed && (
                     <div className="flex justify-center mb-6">
-                        <button onClick={toggleSidebar} className="p-2 text-slate-400 hover:text-white transition-colors">
+                        <button onClick={toggleSidebar} className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors">
                             <FaChevronRight />
                         </button>
                     </div>
                 )}
-
-                {/* User Profile Snippet */}
-                {/* User Profile Snippet */}
-                <div className={`mb-8 p-3 bg-slate-800/50 rounded-2xl border border-slate-700/50 flex items-center gap-3 backdrop-blur-sm ${isCollapsed ? 'justify-center mx-2' : ''}`}>
-                    <div className="w-10 h-10 min-w-[2.5rem] rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold shadow-md">
-                        {session?.user?.image ? (
-                            <img src={session.user.image} alt="User" className="w-full h-full rounded-full object-cover" />
-                        ) : (
-                            <FaUserCircle size={24} />
-                        )}
-                    </div>
-                    {!isCollapsed && (
-                        <div className="overflow-hidden">
-                            <p className="font-semibold text-sm truncate">{session?.user?.name || "Admin User"}</p>
-                            <p className="text-xs text-slate-400 truncate">{session?.user?.email}</p>
-                        </div>
-                    )}
-                </div>
 
                 <nav className="space-y-2 flex-1 px-2 mt-4">
                     {links.map((link) => {
@@ -98,20 +98,20 @@ export default function AdminSidebar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group relative ${isActive
-                                    ? "bg-violet-600 text-white shadow-lg shadow-violet-900/20"
-                                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                                    } ${isCollapsed ? 'justify-center px-0 w-full' : 'gap-4'}`}
+                                className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative ${isActive
+                                    ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
+                                    : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+                                    } ${isCollapsed ? 'justify-center px-0 mx-2' : 'gap-3'}`}
                                 title={isCollapsed ? link.label : ""}
                             >
-                                <div className={`relative z-10 flex items-center justify-center ${isCollapsed ? '' : 'w-6'}`}>
-                                    <Icon className={`text-xl transition-transform group-hover:scale-110 ${isActive ? "text-white" : "currentColor"}`} />
+                                <div className={`relative z-10 flex items-center justify-center ${isCollapsed ? '' : 'w-5'}`}>
+                                    <Icon className={`text-lg transition-transform group-hover:scale-105 ${isActive ? "text-white" : "currentColor"}`} />
                                 </div>
-                                {!isCollapsed && <span className="font-medium relative z-10 whitespace-nowrap">{link.label}</span>}
+                                {!isCollapsed && <span className="text-sm font-medium relative z-10 whitespace-nowrap">{link.label}</span>}
                                 {isActive && !isCollapsed && (
                                     <motion.div
                                         layoutId="adminSidebarActive"
-                                        className="absolute left-0 w-1 h-8 bg-violet-400 rounded-r-full"
+                                        className="absolute left-0 w-1 h-6 bg-white/20 rounded-r-full"
                                     />
                                 )}
                             </Link>
@@ -120,26 +120,11 @@ export default function AdminSidebar() {
                 </nav>
 
                 {/* Footer Actions - Fixed at Bottom */}
-                <div className="absolute bottom-6 left-0 w-full px-4 space-y-2 bg-slate-900 pt-4">
-                    {/* Theme Toggle */}
-                    {mounted && (
-                        <button
-                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                            className={`flex items-center gap-3 px-4 py-3 w-full text-left text-slate-400 hover:bg-slate-800/50 hover:text-white rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center px-0' : ''}`}
-                            title="Toggle Theme"
-                        >
-                            {theme === "dark" ? <FaSun className="text-amber-400 text-xl" /> : <FaMoon className="text-xl" />}
-                            {!isCollapsed && (
-                                <span className="font-medium">
-                                    {theme === "dark" ? "Light Mode" : "Dark Mode"}
-                                </span>
-                            )}
-                        </button>
-                    )}
-
+                {/* Footer Actions - Fixed at Bottom */}
+                <div className="absolute bottom-0 left-0 w-full px-4 pb-6 pt-4 space-y-2 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
                     <button
                         onClick={() => signOut()}
-                        className={`flex items-center gap-3 px-4 py-3 w-full text-left text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-xl transition-all duration-300 group ${isCollapsed ? 'justify-center px-0' : ''}`}
+                        className={`flex items-center gap-3 px-4 py-3 w-full text-left text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-300 rounded-xl transition-all duration-300 group ${isCollapsed ? 'justify-center px-0' : ''}`}
                         title="Sign Out"
                     >
                         <FaSignOutAlt className="group-hover:translate-x-1 transition-transform text-xl" />
@@ -147,6 +132,6 @@ export default function AdminSidebar() {
                     </button>
                 </div>
             </div>
-        </motion.div>
+        </motion.div >
     );
 }

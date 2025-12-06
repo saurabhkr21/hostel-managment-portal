@@ -18,14 +18,15 @@ export async function PUT(
 
     try {
         const body = await req.json();
-        const { number, capacity, type } = body;
+        const { roomNumber, number, capacity, type, block } = body;
 
         const room = await prisma.room.update({
             where: { id },
             data: {
-                roomNumber: number,
+                roomNumber: roomNumber || number,
                 capacity: parseInt(capacity),
                 type,
+                block: block || "Main Block",
             },
         });
 

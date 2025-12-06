@@ -129,23 +129,23 @@ export default function FaceRegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-8 flex flex-col items-center">
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Face Registration</h1>
-            <p className="text-slate-500 mb-8 text-center max-w-md">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8 flex flex-col items-center transition-colors duration-300">
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Face Registration</h1>
+            <p className="text-slate-500 dark:text-slate-400 mb-8 text-center max-w-md">
                 Register your face to enable AI-based attendance.
                 Ensure good lighting and face the camera directly.
             </p>
 
-            <div className="bg-white p-4 rounded-3xl shadow-xl w-full max-w-2xl relative overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-xl w-full max-w-2xl relative overflow-hidden transition-colors duration-300">
                 <div className="relative aspect-video bg-slate-900 rounded-2xl overflow-hidden flex items-center justify-center">
                     {!isScanning && !saved && (
                         <div className="text-center p-6">
-                            <FaCamera className="text-6xl text-slate-700 mx-auto mb-4" />
-                            <p className="text-slate-400 mb-6">{message}</p>
+                            <FaCamera className="text-6xl text-slate-700 dark:text-slate-600 mx-auto mb-4" />
+                            <p className="text-slate-400 dark:text-slate-500 mb-6">{message}</p>
                             <button
                                 onClick={startVideo}
                                 disabled={isLoading}
-                                className="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-violet-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+                                className="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-violet-200 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
                             >
                                 {isLoading ? <FaSpinner className="animate-spin" /> : <FaCamera />}
                                 Start Camera
@@ -167,7 +167,7 @@ export default function FaceRegisterPage() {
 
                     {saved && (
                         <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center">
-                            <div className="bg-white p-8 rounded-full shadow-2xl animate-bounce">
+                            <div className="bg-white dark:bg-slate-800 p-8 rounded-full shadow-2xl animate-bounce">
                                 <FaCheck className="text-6xl text-emerald-500" />
                             </div>
                         </div>
@@ -175,8 +175,8 @@ export default function FaceRegisterPage() {
                 </div>
 
                 <div className="mt-6 flex flex-col items-center gap-4">
-                    <div className={`text-lg font-medium transition-colors ${saved ? "text-emerald-600" :
-                            faceDetected ? "text-emerald-600" : "text-slate-500"
+                    <div className={`text-lg font-medium transition-colors ${saved ? "text-emerald-600 dark:text-emerald-400" :
+                        faceDetected ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"
                         }`}>
                         {message}
                     </div>
@@ -187,8 +187,8 @@ export default function FaceRegisterPage() {
                             disabled={!faceDetected || isLoading}
                             className={`w-full py-4 rounded-xl font-bold text-lg transition-all shadow-lg
                                 ${faceDetected
-                                    ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200 scale-100"
-                                    : "bg-slate-100 text-slate-400 cursor-not-allowed scale-95"
+                                    ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200 dark:shadow-none scale-100"
+                                    : "bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed scale-95"
                                 }`}
                         >
                             {isLoading ? "Saving..." : "Capture & Save Face"}

@@ -19,6 +19,11 @@ export async function GET() {
                         id: true,
                         name: true,
                         email: true,
+                        profile: {
+                            select: {
+                                profileImage: true
+                            }
+                        }
                     },
                 },
             },
@@ -44,7 +49,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const { roomNumber, capacity, type } = body;
+        const { roomNumber, capacity, type, block } = body;
 
         if (!roomNumber || !capacity || !type) {
             return NextResponse.json(
@@ -69,6 +74,7 @@ export async function POST(req: Request) {
                 roomNumber,
                 capacity: parseInt(capacity),
                 type,
+                block: block || "Main Block",
             },
         });
 

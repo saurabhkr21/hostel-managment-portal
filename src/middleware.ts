@@ -10,7 +10,7 @@ export default withAuth(
             return NextResponse.redirect(new URL("/unauthorized", req.url));
         }
 
-        if (pathname.startsWith("/staff") && token?.role !== "STAFF") {
+        if (pathname.startsWith("/staff") && token?.role !== "STAFF" && token?.role !== "ADMIN") {
             return NextResponse.redirect(new URL("/unauthorized", req.url));
         }
 

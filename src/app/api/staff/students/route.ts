@@ -4,16 +4,23 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Role } from "@prisma/client";
 
-export async function GET() {
+export async function GET(req: Request) {
     const session = await getServerSession(authOptions);
+    const { searchParams } = new URL(req.url);
+    const unassigned = searchParams.get("unassigned") === "true";
 
-    if (!session || session.user.role !== Role.STAFF) {
+    if (!session || (session.user.role !== Role.STAFF && session.user.role !== Role.ADMIN)) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     try {
+        const whereClause: any = { role: Role.STUDENT };
+        if (unassigned) {
+            whereClause.roomId = null;
+        }
+
         const students = await prisma.user.findMany({
-            where: { role: Role.STUDENT },
+            where: whereClause,
             select: {
                 id: true,
                 name: true,

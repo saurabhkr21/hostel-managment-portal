@@ -13,7 +13,7 @@ export async function PUT(
     const { id } = params;
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== Role.ADMIN) {
+    if (!session || (session.user.role !== Role.ADMIN && session.user.role !== Role.STAFF)) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -113,7 +113,10 @@ export async function PUT(
         const user = await prisma.user.update({
             where: { id },
             data: updateData,
+            include: { profile: true }
         });
+
+        console.log("User Updated (SERVER):", JSON.stringify(user, null, 2));
 
         const { password: _, ...userWithoutPassword } = user;
 

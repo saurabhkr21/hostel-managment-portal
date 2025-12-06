@@ -53,6 +53,7 @@ model User {
   // AI Attendance
   faceDescriptor Json?
   notifications Notification[]
+  fees          Fee[]
 }
 
 model Profile {
@@ -92,6 +93,7 @@ model Room {
   roomNumber String   @unique
   capacity   Int
   type       String   // e.g., "Single", "Double"
+  block      String?  @default("Main A") // e.g., "Block A", "Kaveri"
   occupants  User[]
 }
 
@@ -142,4 +144,15 @@ model Notification {
   message   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model Fee {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId   String   @db.ObjectId
+  student     User     @relation(fields: [studentId], references: [id])
+  amount      Float
+  type        String   // e.g., "Hostel Fee", "Mess Fee"
+  status      String   // "Paid", "Pending"
+  paymentDate DateTime @default(now())
+  remarks     String?
 }

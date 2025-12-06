@@ -1,23 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { FaUser, FaLock } from "react-icons/fa";
+import { FaUser, FaLock, FaRedo } from "react-icons/fa";
 import Image from "next/image";
 
 export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [captcha, setCaptcha] = useState("");
+    const [generatedCaptcha, setGeneratedCaptcha] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        generateCaptcha();
+    }, []);
+
+    const generateCaptcha = () => {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed confusing chars like I, 1, O, 0
+        let result = "";
+        for (let i = 0; i < 6; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setGeneratedCaptcha(result);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");
+
+        if (captcha.toUpperCase() !== generatedCaptcha) {
+            setError("Invalid Verification Code");
+            setLoading(false);
+            generateCaptcha();
+            setCaptcha("");
+            return;
+        }
 
         try {
             const result = await signIn("credentials", {
@@ -28,9 +51,9 @@ export default function LoginPage() {
 
             if (result?.error) {
                 setError("Invalid email or password");
+                generateCaptcha(); // Refresh captcha on failure
+                setCaptcha("");
             } else {
-                // Redirect based on role is handled by middleware or we can do it here
-                // But for now, let's just refresh/push to root and let middleware handle
                 router.push("/");
                 router.refresh();
             }
@@ -85,8 +108,8 @@ export default function LoginPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="block w-full pl-10 pr-3 py-3 bg-white/5 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all"
-                                placeholder="admin@hostel.com"
+                                className="block w-full pl-10 pr-3 py-3 bg-white/5 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all hover:bg-white/10"
+                                placeholder="name@example.com"
                             />
                         </div>
                     </div>
@@ -104,16 +127,48 @@ export default function LoginPage() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="block w-full pl-10 pr-3 py-3 bg-white/5 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all"
+                                className="block w-full pl-10 pr-3 py-3 bg-white/5 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all hover:bg-white/10"
                                 placeholder="••••••••"
                             />
                         </div>
                     </div>
 
+                    {/* Captcha Section */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                            Verification Code
+                        </label>
+                        <div className="flex gap-3 mb-3">
+                            <div className="flex-1 bg-white/10 border border-gray-600 rounded-lg flex items-center justify-center py-3 select-none backdrop-blur-sm"
+                                style={{
+                                    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)'
+                                }}>
+                                <span className="text-2xl font-mono font-bold tracking-[0.5em] text-purple-200" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
+                                    {generatedCaptcha}
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={generateCaptcha}
+                                className="px-4 bg-white/10 hover:bg-white/20 border border-gray-600 rounded-lg text-gray-300 hover:text-white transition-colors"
+                            >
+                                <FaRedo />
+                            </button>
+                        </div>
+                        <input
+                            type="text"
+                            value={captcha}
+                            onChange={(e) => setCaptcha(e.target.value)}
+                            required
+                            className="block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all hover:bg-white/10 text-center tracking-widest font-mono uppercase"
+                            placeholder="ENTER CODE"
+                        />
+                    </div>
+
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-lg shadow-lg transform transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full py-3.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-900/50 transform transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
                     >
                         {loading ? (
                             <span className="flex items-center justify-center">
@@ -137,7 +192,7 @@ export default function LoginPage() {
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                     ></path>
                                 </svg>
-                                Signing in...
+                                Verifying...
                             </span>
                         ) : (
                             "Sign In"

@@ -18,15 +18,70 @@ export async function GET() {
             complaintsResolved,
             leavesPending,
             leavesApproved,
-            leavesRejected
+            leavesRejected,
+            recentComplaints,
+            recentLeaves,
+            allRooms
         ] = await prisma.$transaction([
             prisma.user.count({ where: { role: Role.STUDENT } }),
             prisma.complaint.count({ where: { status: ComplaintStatus.PENDING } }),
             prisma.complaint.count({ where: { status: ComplaintStatus.RESOLVED } }),
-            prisma.leaveRequest.count({ where: { status: "PENDING" } }), // Using string if enum import is tricky, but preferably use Enum
+            prisma.leaveRequest.count({ where: { status: "PENDING" } }),
             prisma.leaveRequest.count({ where: { status: "APPROVED" } }),
-            prisma.leaveRequest.count({ where: { status: "REJECTED" } })
+            prisma.leaveRequest.count({ where: { status: "REJECTED" } }),
+            // Recent Complaints
+            prisma.complaint.findMany({
+                where: { status: ComplaintStatus.PENDING },
+                take: 3,
+                orderBy: { createdAt: "desc" },
+                select: {
+                    id: true,
+                    title: true,
+                    createdAt: true,
+                    student: { select: { name: true, profile: { select: { profileImage: true } } } }
+                }
+            }),
+            // Recent Leaves
+            prisma.leaveRequest.findMany({
+                where: { status: "PENDING" },
+                take: 3,
+                orderBy: { createdAt: "desc" },
+                select: {
+                    id: true,
+                    reason: true,
+                    fromDate: true,
+                    student: { select: { name: true, profile: { select: { profileImage: true } } } }
+                }
+            }),
+            // Room Data for Occupancy Map
+            prisma.room.findMany({
+                include: {
+                    _count: {
+                        select: { occupants: true }
+                    }
+                }
+            })
         ]);
+
+        // Process Occupancy Data (Group by Block)
+        const blockMap = new Map<string, { occupied: number, capacity: number }>();
+
+        allRooms.forEach((room: any) => {
+            // @ts-ignore
+            const blockName = (room.block || "Main Block");
+            const current = blockMap.get(blockName) || { occupied: 0, capacity: 0 };
+            current.occupied += room._count.occupants;
+            current.capacity += room.capacity;
+            blockMap.set(blockName, current);
+        });
+
+        const occupancyData = Array.from(blockMap.entries())
+            .map(([name, data]) => ({
+                name,
+                occupied: data.occupied,
+                capacity: data.capacity
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name));
 
         return NextResponse.json({
             students: studentCount,
@@ -40,7 +95,12 @@ export async function GET() {
                 approved: leavesApproved,
                 rejected: leavesRejected,
                 total: leavesPending + leavesApproved + leavesRejected
-            }
+            },
+            recentActivity: {
+                complaints: recentComplaints,
+                leaves: recentLeaves
+            },
+            occupancy: occupancyData
         });
     } catch (error) {
         console.error("Error fetching staff stats:", error);

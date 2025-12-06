@@ -4,13 +4,15 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Role } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== Role.STAFF) {
+    if (!session || (session.user.role !== Role.STAFF && session.user.role !== Role.ADMIN)) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -31,29 +33,20 @@ export async function GET(
 
                 room: {
                     select: {
+                        id: true,
                         roomNumber: true,
                         type: true,
                     },
                 },
-                profile: {
-                    select: {
-                        dob: true,
-                        gender: true,
-                        phone: true,
-                        address: true,
-                        guardianName: true,
-                        guardianPhone: true,
-                        branch: true,
-                        yearSem: true,
-                        bloodGroup: true,
-                    },
-                },
+                profile: true,
             },
         });
 
         if (!student) {
             return NextResponse.json({ error: "Student not found" }, { status: 404 });
         }
+
+        console.log("API Fetched Student (SERVER):", JSON.stringify(student, null, 2));
 
         return NextResponse.json(student);
     } catch (error) {

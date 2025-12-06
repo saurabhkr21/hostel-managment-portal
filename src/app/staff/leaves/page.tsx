@@ -18,6 +18,7 @@ interface LeaveRequest {
         };
         profile: {
             phone: string;
+            profileImage?: string;
         };
     };
 }
@@ -121,36 +122,36 @@ export default function StaffLeavesPage() {
             leave.type.toLowerCase().includes(search.toLowerCase())
     );
 
-    const getStatusBadge = (status: string) => {
+    const StatusBadge = ({ status }: { status: string }) => {
         switch (status) {
             case "APPROVED":
-                return <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold flex items-center gap-1 w-fit"><FaCheck size={10} /> Approved</span>;
+                return <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit"><FaCheck size={10} /> Approved</span>;
             case "REJECTED":
-                return <span className="px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold flex items-center gap-1 w-fit"><FaTimes size={10} /> Rejected</span>;
+                return <span className="px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit"><FaTimes size={10} /> Rejected</span>;
             default:
-                return <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold flex items-center gap-1 w-fit"><FaSpinner className="animate-spin" size={10} /> Pending</span>;
+                return <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit"><FaSpinner className="animate-spin" size={10} /> Pending</span>;
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6 md:p-8">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 md:p-8 transition-colors duration-300">
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800">Leave Management</h1>
-                        <p className="text-slate-500 mt-1">Review and manage student leave requests</p>
+                        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Leave Management</h1>
+                        <p className="text-slate-500 dark:text-slate-400 mt-1">Review and manage student leave requests</p>
                     </div>
                     <button
                         onClick={handleExport}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-medium shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all font-medium shadow-sm"
                     >
                         <FaFileDownload />
                         Export CSV
                     </button>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between gap-4">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col md:flex-row justify-between gap-4">
                         <div className="relative max-w-md w-full">
                             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                             <input
@@ -158,17 +159,17 @@ export default function StaffLeavesPage() {
                                 placeholder="Search by student name or type..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none transition-all"
+                                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none transition-all dark:text-white dark:placeholder-slate-400"
                             />
                         </div>
-                        <div className="text-sm text-slate-500 flex items-center gap-2">
-                            <span className="font-semibold">{filteredLeaves.length}</span> requests found
+                        <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                            <span className="font-semibold text-slate-700 dark:text-slate-300">{filteredLeaves.length}</span> requests found
                         </div>
                     </div>
 
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
+                            <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
                                 <tr>
                                     <th className="px-6 py-4 text-left">Student</th>
                                     <th className="px-6 py-4 text-left">Request Details</th>
@@ -177,11 +178,11 @@ export default function StaffLeavesPage() {
                                     <th className="px-6 py-4 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-50">
+                            <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                                 <AnimatePresence>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                                            <td colSpan={5} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                                                 <FaSpinner className="animate-spin text-2xl mx-auto mb-2 text-violet-500" />
                                                 Loading requests...
                                             </td>
@@ -199,16 +200,24 @@ export default function StaffLeavesPage() {
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 exit={{ opacity: 0 }}
-                                                className="hover:bg-slate-50/80 transition-colors group"
+                                                className="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors group"
                                             >
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold text-sm">
-                                                            {leave.student.name.charAt(0)}
+                                                        <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-sm overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
+                                                            {leave.student.profile?.profileImage ? (
+                                                                <img
+                                                                    src={leave.student.profile.profileImage}
+                                                                    alt={leave.student.name}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            ) : (
+                                                                leave.student.name.charAt(0)
+                                                            )}
                                                         </div>
                                                         <div>
-                                                            <p className="font-semibold text-slate-800">{leave.student.name}</p>
-                                                            <p className="text-xs text-slate-500">
+                                                            <p className="font-semibold text-slate-800 dark:text-white">{leave.student.name}</p>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400">
                                                                 Room {leave.student.room?.roomNumber || "N/A"}
                                                             </p>
                                                         </div>
@@ -216,22 +225,22 @@ export default function StaffLeavesPage() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div>
-                                                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 mb-1 uppercase tracking-wider">
+                                                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 mb-1 uppercase tracking-wider">
                                                             {leave.type}
                                                         </span>
-                                                        <p className="text-sm text-slate-600 flex items-center gap-1.5 font-medium">
-                                                            <FaCalendarAlt className="text-slate-400" size={12} />
-                                                            {new Date(leave.fromDate).toLocaleDateString()} <span className="text-slate-300">→</span> {new Date(leave.toDate).toLocaleDateString()}
+                                                        <p className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-1.5 font-medium">
+                                                            <FaCalendarAlt className="text-slate-400 dark:text-slate-500" size={12} />
+                                                            {new Date(leave.fromDate).toLocaleDateString()} <span className="text-slate-300 dark:text-slate-600">→</span> {new Date(leave.toDate).toLocaleDateString()}
                                                         </p>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <p className="text-sm text-slate-600 max-w-xs truncate" title={leave.reason}>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-300 max-w-xs truncate" title={leave.reason}>
                                                         {leave.reason}
                                                     </p>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    {getStatusBadge(leave.status)}
+                                                    <StatusBadge status={leave.status} />
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -243,14 +252,14 @@ export default function StaffLeavesPage() {
                                                                     <>
                                                                         <button
                                                                             onClick={() => handleStatusUpdate(leave.id, "APPROVED")}
-                                                                            className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-200"
+                                                                            className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800"
                                                                             title="Approve"
                                                                         >
                                                                             <FaCheck />
                                                                         </button>
                                                                         <button
                                                                             onClick={() => handleStatusUpdate(leave.id, "REJECTED")}
-                                                                            className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-transparent hover:border-amber-200"
+                                                                            className="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors border border-transparent hover:border-amber-200 dark:hover:border-amber-800"
                                                                             title="Reject"
                                                                         >
                                                                             <FaTimes />
@@ -259,7 +268,7 @@ export default function StaffLeavesPage() {
                                                                 )}
                                                                 <button
                                                                     onClick={() => handleDelete(leave.id)}
-                                                                    className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-200"
+                                                                    className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-colors border border-transparent hover:border-rose-200 dark:hover:border-rose-800"
                                                                     title="Delete"
                                                                 >
                                                                     <FaTrash />

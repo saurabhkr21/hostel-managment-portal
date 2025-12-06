@@ -30,6 +30,11 @@ export async function GET() {
                 student: {
                     select: {
                         name: true,
+                        profile: {
+                            select: {
+                                profileImage: true,
+                            },
+                        },
                         room: {
                             select: {
                                 roomNumber: true,
