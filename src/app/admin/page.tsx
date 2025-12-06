@@ -74,19 +74,19 @@ export default function AdminDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-3 md:p-8 transition-colors duration-300">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex justify-between items-center mb-10"
+                    className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 mt-12 md:mt-0"
                 >
-                    <div>
-                        <h1 className="text-4xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">Welcome back, <span className="font-semibold text-violet-600 dark:text-violet-400">{session?.user?.name}</span></p>
+                    <div className="w-full md:w-auto">
+                        <h1 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
+                        <p className="text-slate-500 dark:text-slate-400 mt-2 text-base md:text-lg">Welcome back, <span className="font-semibold text-violet-600 dark:text-violet-400">{session?.user?.name}</span></p>
                     </div>
-                    <div className="px-4 py-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium">
+                    <div className="w-full md:w-auto px-4 py-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium flex items-center justify-center md:block">
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
                 </motion.div>

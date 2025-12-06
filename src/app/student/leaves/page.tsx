@@ -65,7 +65,7 @@ export default function LeaveApplyPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 p-6 md:p-8 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 px-6 pb-6 pt-24 md:p-8 transition-colors duration-300">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

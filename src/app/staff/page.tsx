@@ -58,13 +58,13 @@ export default function StaffDashboard() {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 p-6 md:p-8 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 p-3 md:p-8 transition-colors duration-300">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Hero Section */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4"
+                    className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mt-12 md:mt-0"
                 >
                     <div>
                         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
@@ -75,7 +75,7 @@ export default function StaffDashboard() {
                             Welcome back, {session?.user?.name}
                         </p>
                     </div>
-                    <div className="text-right hidden md:block">
+                    <div className="w-full md:w-auto text-left md:text-right bg-white dark:bg-slate-800 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none border border-slate-100 md:border-none shadow-sm md:shadow-none">
                         <p className="text-sm font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Today's Date</p>
                         <p className="text-xl font-bold text-slate-700 dark:text-slate-200">
                             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}

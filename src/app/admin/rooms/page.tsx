@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaBed, FaUsers, FaExternalLinkAlt, FaSort, FaFilter, FaUserGraduate, FaGripVertical, FaBuilding } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -183,43 +183,50 @@ export default function AdminRoomsPage() {
         }
     };
 
-    const uniqueBlocks = Array.from(new Set(rooms.map(r => r.block || "Main Block"))).sort();
+    const uniqueBlocks = useMemo(() => {
+        return Array.from(new Set(rooms.map(r => r.block || "Main Block"))).sort();
+    }, [rooms]);
 
-    const filteredRooms = rooms
-        .filter((room) => {
-            const matchesSearch = (room.roomNumber || "").toLowerCase().includes(search.toLowerCase()) ||
-                (room.block || "").toLowerCase().includes(search.toLowerCase());
-            const matchesType = filterType === "All" || room.type === filterType;
-            const matchesBlock = filterBlock === "All" || (room.block || "Main Block") === filterBlock;
-            return matchesSearch && matchesType && matchesBlock;
-        })
-        .sort((a, b) => {
-            if (sortBy === "number") {
-                const numA = parseInt(a.roomNumber.replace(/\D/g, "") || "0");
-                const numB = parseInt(b.roomNumber.replace(/\D/g, "") || "0");
-                return numA - numB;
-            }
-            if (sortBy === "block") return (a.block || "").localeCompare(b.block || "");
-            if (sortBy === "capacity_desc") return b.capacity - a.capacity;
-            if (sortBy === "capacity_asc") return a.capacity - b.capacity;
-            if (sortBy === "occupancy_desc") return b.occupants.length - a.occupants.length;
-            if (sortBy === "occupancy_asc") return a.occupants.length - b.occupants.length;
-            return 0;
-        });
+    const filteredRooms = useMemo(() => {
+        return rooms
+            .filter((room) => {
+                const matchesSearch = (room.roomNumber || "").toLowerCase().includes(search.toLowerCase()) ||
+                    (room.block || "").toLowerCase().includes(search.toLowerCase());
+                const matchesType = filterType === "All" || room.type === filterType;
+                const matchesBlock = filterBlock === "All" || (room.block || "Main Block") === filterBlock;
+                return matchesSearch && matchesType && matchesBlock;
+            })
+            .sort((a, b) => {
+                if (sortBy === "number") {
+                    const numA = parseInt(a.roomNumber.replace(/\D/g, "") || "0");
+                    const numB = parseInt(b.roomNumber.replace(/\D/g, "") || "0");
+                    return numA - numB;
+                }
+                if (sortBy === "block") return (a.block || "").localeCompare(b.block || "");
+                if (sortBy === "capacity_desc") return b.capacity - a.capacity;
+                if (sortBy === "capacity_asc") return a.capacity - b.capacity;
+                if (sortBy === "occupancy_desc") return b.occupants.length - a.occupants.length;
+                if (sortBy === "occupancy_asc") return a.occupants.length - b.occupants.length;
+                return 0;
+            });
+    }, [rooms, search, filterType, filterBlock, sortBy]);
 
     const [viewingRoom, setViewingRoom] = useState<Room | null>(null);
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 md:p-8 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-3 md:p-8 transition-colors duration-300">
             <div className="max-w-[1600px] mx-auto">
+                {/* Mobile Header Spacer to avoid hamburger overlap */}
+                <div className="h-24 md:hidden w-full"></div>
+
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Room Management (Admin)</h1>
+                        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Room Management</h1>
                         <p className="text-slate-500 dark:text-slate-400 mt-1">Manage rooms and drag students to assign</p>
                     </div>
                     <button
                         onClick={() => { resetForm(); setIsModalOpen(true); }}
-                        className="flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium shadow-lg shadow-violet-200 dark:shadow-none transition-all hover:scale-105 active:scale-95"
+                        className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium shadow-lg shadow-violet-200 dark:shadow-none transition-all hover:scale-105 active:scale-95"
                     >
                         <FaPlus /> Add Room
                     </button>
@@ -245,14 +252,14 @@ export default function AdminRoomsPage() {
                                 </div>
 
                                 {/* Filters & Sort */}
-                                <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto items-center">
+                                <div className="grid grid-cols-2 md:flex md:flex-row gap-3 w-full xl:w-auto items-center">
                                     {/* Block Filter */}
-                                    <div className="relative w-full sm:w-auto min-w-[160px]">
+                                    <div className="relative w-full md:w-auto md:min-w-[160px]">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                             <FaBuilding />
                                         </div>
                                         <select
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                            className="w-full pl-9 md:pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-xs md:text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors truncate"
                                             value={filterBlock}
                                             onChange={(e) => setFilterBlock(e.target.value)}
                                         >
@@ -262,12 +269,12 @@ export default function AdminRoomsPage() {
                                     </div>
 
                                     {/* Type Filter */}
-                                    <div className="relative w-full sm:w-auto min-w-[150px]">
+                                    <div className="relative w-full md:w-auto md:min-w-[150px]">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                             <FaFilter />
                                         </div>
                                         <select
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                            className="w-full pl-9 md:pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-xs md:text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors truncate"
                                             value={filterType}
                                             onChange={(e) => setFilterType(e.target.value)}
                                         >
@@ -279,13 +286,13 @@ export default function AdminRoomsPage() {
                                         </select>
                                     </div>
 
-                                    {/* Sort Dropdown */}
-                                    <div className="relative w-full sm:w-auto min-w-[180px]">
+                                    {/* Sort Dropdown - Spans full width on mobile grid if needed or just part of grid */}
+                                    <div className="relative w-full col-span-2 md:col-auto md:min-w-[180px]">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                             <FaSort />
                                         </div>
                                         <select
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                            className="w-full pl-9 md:pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-xs md:text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                                             value={sortBy}
                                             onChange={(e) => setSortBy(e.target.value)}
                                         >
@@ -300,7 +307,77 @@ export default function AdminRoomsPage() {
                                 </div>
                             </div>
 
-                            <div className="overflow-x-auto">
+                            {/* Mobile Card View */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-4 p-4">
+                                <AnimatePresence>
+                                    {filteredRooms.map((room) => {
+                                        const isFull = room.occupants.length >= room.capacity;
+                                        return (
+                                            <motion.div
+                                                key={room.id}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0 }}
+                                                className={`bg-slate-50 dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 ${isFull ? 'opacity-80' : ''}`}
+                                            >
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${isFull
+                                                            ? "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                                                            : "bg-violet-100 dark:bg-violet-900/30 text-violet-600"
+                                                            }`}>
+                                                            <FaBed size={20} />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                                                {room.roomNumber}
+                                                                {isFull && <span className="text-[10px] bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">FULL</span>}
+                                                            </h3>
+                                                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{room.block || "Main Block"} • {room.type}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-1">
+                                                        <button
+                                                            onClick={() => openEditModal(room)}
+                                                            className="p-2 text-violet-600 bg-violet-50 rounded-lg"
+                                                        >
+                                                            <FaEdit size={14} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(room.id)}
+                                                            className="p-2 text-rose-600 bg-rose-50 rounded-lg"
+                                                        >
+                                                            <FaTrash size={14} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <div>
+                                                        <div className="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
+                                                            <span>Occupancy</span>
+                                                            <span>{room.occupants.length}/{room.capacity}</span>
+                                                        </div>
+                                                        <div className="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                                                            <div className={`h-full rounded-full transition-all duration-500 ${isFull ? "bg-rose-500" : "bg-violet-500"}`} style={{ width: `${(room.occupants.length / room.capacity) * 100}%` }}></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <button
+                                                        onClick={() => setViewingRoom(room)}
+                                                        className="w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 flex items-center justify-center gap-2"
+                                                    >
+                                                        <FaUsers /> View Occupants
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </AnimatePresence>
+                            </div>
+
+                            {/* Desktop Table View */}
+                            <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full">
                                     <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
                                         <tr>

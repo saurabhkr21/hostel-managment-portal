@@ -168,19 +168,22 @@ export default function UserModal({ isOpen, onClose, onSave, user, rooms }: User
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-slate-100 overflow-x-auto">
+                <div className="flex border-b border-slate-100 w-full">
                     {tabs.filter(t => !t.hidden).map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-6 py-4 font-medium text-sm transition-all whitespace-nowrap
+                            className={`flex items-center justify-center md:gap-2 px-2 md:px-6 py-3 md:py-4 font-medium text-sm transition-all whitespace-nowrap outline-none flex-1 md:flex-none border-b-2
                                 ${activeTab === tab.id
-                                    ? "text-violet-600 border-b-2 border-violet-600 bg-violet-50/50"
-                                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                                    ? "text-violet-600 border-violet-600 bg-violet-50/50"
+                                    : "text-slate-400 border-transparent hover:text-slate-600 hover:bg-slate-50"
                                 }`}
+                            title={tab.label}
                         >
-                            <tab.icon />
-                            {tab.label}
+                            <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                                <tab.icon size={20} className="transition-transform active:scale-95" />
+                            </div>
+                            <span className="hidden md:inline">{tab.label}</span>
                         </button>
                     ))}
                 </div>

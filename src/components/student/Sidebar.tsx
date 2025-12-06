@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaMoon, FaSun, FaUserCircle, FaCog, FaMoneyBillWave, FaBell, FaSuitcase, FaClipboardList } from "react-icons/fa";
+import { FaHome, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaMoon, FaSun, FaUserCircle, FaCog, FaMoneyBillWave, FaBell, FaSuitcase, FaClipboardList, FaBars } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSidebar } from "@/components/providers/SidebarContext";
@@ -12,7 +12,7 @@ import NotificationPanel from "./NotificationPanel";
 
 export default function StudentSidebar() {
     const pathname = usePathname();
-    const { isCollapsed, toggleSidebar } = useSidebar();
+    const { isCollapsed, toggleSidebar, isMobile, setSidebarState } = useSidebar();
     const { data: session } = useSession();
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
@@ -81,16 +81,46 @@ export default function StudentSidebar() {
 
     const settingsLink = { href: "/student/settings", label: "Settings", icon: FaCog };
 
+    // Mobile Overlay
+    const MobileOverlay = () => (
+        isMobile && !isCollapsed ? (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSidebarState(true)}
+                className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
+            />
+        ) : null
+    );
+
     return (
         <>
+            <AnimatePresence>
+                <MobileOverlay />
+            </AnimatePresence>
+
+            {/* Mobile Header Toggle (Visible only on mobile when sidebar is closed) */}
+            {isMobile && isCollapsed && (
+                <button
+                    onClick={toggleSidebar}
+                    className="fixed top-4 left-4 z-50 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 md:hidden"
+                >
+                    <FaBars />
+                </button>
+            )}
+
             <motion.div
                 initial={false}
-                animate={{ width: isCollapsed ? 80 : 280 }}
+                animate={{
+                    width: isMobile ? 280 : (isCollapsed ? 80 : 280),
+                    x: isMobile && isCollapsed ? -280 : 0
+                }}
                 transition={{ duration: 0.15, ease: "easeInOut" }}
-                className="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-screen flex flex-col fixed left-0 top-0 z-50 shadow-xl"
+                className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-screen flex flex-col fixed left-0 top-0 z-50 shadow-xl ${isMobile ? 'w-[280px]' : ''}`}
             >
-                <div className={`p-4 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-                    <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
+                <div className={`p-4 flex items-center ${isCollapsed && !isMobile ? 'justify-center' : 'justify-between'}`}>
+                    <div className={`flex items-center gap-3 ${isCollapsed && !isMobile ? 'justify-center' : ''}`}>
                         <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
                             {profileImage ? (
                                 <img src={profileImage} alt="User" className="w-full h-full rounded-full object-cover" />
@@ -98,7 +128,7 @@ export default function StudentSidebar() {
                                 <FaUserCircle size={24} />
                             )}
                         </div>
-                        {!isCollapsed && (
+                        {(!isCollapsed || isMobile) && (
                             <div className="overflow-hidden">
                                 <p className="font-bold text-sm text-slate-800 dark:text-white truncate">{session?.user?.name || "Student"}</p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{session?.user?.email}</p>
@@ -106,70 +136,85 @@ export default function StudentSidebar() {
                         )}
                     </div>
 
-                    {!isCollapsed && (
+                    {(!isCollapsed || isMobile) && (
                         <div className="flex items-center gap-2">
-                            {/* Header Notification Icon */}
-                            <div className="relative">
+                            {/* Close Button for Mobile */}
+                            {isMobile && (
                                 <button
-                                    onClick={() => setShowHeaderDropdown(!showHeaderDropdown)}
-                                    className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors relative"
+                                    onClick={() => setSidebarState(true)}
+                                    className="p-2 ml-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                                 >
-                                    <FaBell />
-                                    {unreadCount > 0 && (
-                                        <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
-                                    )}
+                                    <FaChevronLeft />
                                 </button>
-                                <AnimatePresence>
-                                    {showHeaderDropdown && (
-                                        <>
-                                            <div className="fixed inset-0 z-40" onClick={() => setShowHeaderDropdown(false)} />
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                className="absolute left-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden"
-                                            >
-                                                <div className="p-3 border-b border-slate-100 dark:border-slate-700 font-bold text-sm text-slate-800 dark:text-white flex justify-between items-center">
-                                                    <span>Notifications</span>
-                                                    <span className="text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 px-2 py-0.5 rounded-full">{unreadCount} New</span>
-                                                </div>
-                                                <div className="max-h-64 overflow-y-auto custom-scrollbar">
-                                                    {notifications.length === 0 ? (
-                                                        <div className="p-8 text-center text-slate-400 text-xs">No notifications</div>
-                                                    ) : (
-                                                        notifications.map((n) => (
-                                                            <div
-                                                                key={n.id}
-                                                                onClick={() => markAsRead(n.id)}
-                                                                className={`p-3 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors ${!n.read ? "bg-violet-50/50 dark:bg-violet-900/10" : ""}`}
-                                                            >
-                                                                <p className={`text-sm ${!n.read ? "font-bold text-slate-800 dark:text-white" : "text-slate-600 dark:text-slate-300"}`}>
-                                                                    {n.message}
-                                                                </p>
-                                                                <p className="text-[10px] text-slate-400 mt-1">
-                                                                    {new Date(n.createdAt).toLocaleString()}
-                                                                </p>
-                                                            </div>
-                                                        ))
-                                                    )}
-                                                </div>
-                                            </motion.div>
-                                        </>
-                                    )}
-                                </AnimatePresence>
-                            </div>
+                            )}
 
-                            <button
-                                onClick={toggleSidebar}
-                                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                            >
-                                <FaChevronLeft />
-                            </button>
+                            {/* Header Notification Icon - Only show on Desktop here, mobile has sidebar link */}
+                            {!isMobile && (
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setShowHeaderDropdown(!showHeaderDropdown)}
+                                        className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors relative"
+                                    >
+                                        <FaBell />
+                                        {unreadCount > 0 && (
+                                            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
+                                        )}
+                                    </button>
+                                    <AnimatePresence>
+                                        {showHeaderDropdown && (
+                                            <>
+                                                <div className="fixed inset-0 z-40" onClick={() => setShowHeaderDropdown(false)} />
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    className="absolute left-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden"
+                                                >
+                                                    <div className="p-3 border-b border-slate-100 dark:border-slate-700 font-bold text-sm text-slate-800 dark:text-white flex justify-between items-center">
+                                                        <span>Notifications</span>
+                                                        <span className="text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 px-2 py-0.5 rounded-full">{unreadCount} New</span>
+                                                    </div>
+                                                    <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                                                        {notifications.length === 0 ? (
+                                                            <div className="p-8 text-center text-slate-400 text-xs">No notifications</div>
+                                                        ) : (
+                                                            notifications.map((n) => (
+                                                                <div
+                                                                    key={n.id}
+                                                                    onClick={() => markAsRead(n.id)}
+                                                                    className={`p-3 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors ${!n.read ? "bg-violet-50/50 dark:bg-violet-900/10" : ""}`}
+                                                                >
+                                                                    <p className={`text-sm ${!n.read ? "font-bold text-slate-800 dark:text-white" : "text-slate-600 dark:text-slate-300"}`}>
+                                                                        {n.message}
+                                                                    </p>
+                                                                    <p className="text-[10px] text-slate-400 mt-1">
+                                                                        {new Date(n.createdAt).toLocaleString()}
+                                                                    </p>
+                                                                </div>
+                                                            ))
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            </>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            )}
+
+                            {!isMobile && (
+                                <button
+                                    onClick={toggleSidebar}
+                                    className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                >
+                                    <FaChevronLeft />
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
 
-                {isCollapsed && (
+                {/* Desktop Collapse Arrow */}
+                {isCollapsed && !isMobile && (
                     <div className="flex justify-center py-4 border-b border-transparent">
                         <button
                             onClick={toggleSidebar}
@@ -190,13 +235,14 @@ export default function StudentSidebar() {
                                 className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative overflow-hidden ${isActive
                                     ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
                                     : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                                    } ${isCollapsed ? 'justify-center px-0 mx-2' : 'gap-3'}`}
-                                title={isCollapsed ? link.label : ""}
+                                    } ${isCollapsed && !isMobile ? 'justify-center px-0 mx-2' : 'gap-3'}`}
+                                title={isCollapsed && !isMobile ? link.label : ""}
+                                onClick={() => isMobile && setSidebarState(true)}
                             >
-                                <div className={`relative z-10 flex items-center justify-center ${isCollapsed ? '' : 'w-5'}`}>
+                                <div className={`relative z-10 flex items-center justify-center ${isCollapsed && !isMobile ? '' : 'w-5'}`}>
                                     <link.icon className={`text-lg transition-transform group-hover:scale-105 ${isActive ? "text-white" : "text-slate-400 group-hover:text-violet-500"}`} />
                                 </div>
-                                {!isCollapsed && (
+                                {(!isCollapsed || isMobile) && (
                                     <span className="font-medium text-sm whitespace-nowrap relative z-10">{link.label}</span>
                                 )}
                             </Link>
@@ -204,21 +250,19 @@ export default function StudentSidebar() {
                     })}
                 </nav>
 
-                {/* Bottom Section: Notifications & Settings & Sign Out */}
                 <div className="p-4 bg-slate-50/50 dark:bg-slate-900/50 space-y-2 mt-auto border-t border-slate-100 dark:border-slate-800">
-                    {/* Sidebar Notification Trigger */}
                     <button
                         onClick={() => setShowSidebarPanel(true)}
-                        className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative w-full text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white ${isCollapsed ? 'justify-center px-0 mx-2' : 'gap-3'}`}
-                        title={isCollapsed ? "Notifications" : ""}
+                        className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative w-full text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white ${isCollapsed && !isMobile ? 'justify-center px-0 mx-2' : 'gap-3'}`}
+                        title={isCollapsed && !isMobile ? "Notifications" : ""}
                     >
-                        <div className={`relative z-10 flex items-center justify-center ${isCollapsed ? '' : 'w-5'}`}>
+                        <div className={`relative z-10 flex items-center justify-center ${isCollapsed && !isMobile ? '' : 'w-5'}`}>
                             <FaBell className="text-lg transition-transform group-hover:scale-105 text-slate-400 group-hover:text-violet-500" />
                             {unreadCount > 0 && (
                                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
                             )}
                         </div>
-                        {!isCollapsed && (
+                        {(!isCollapsed || isMobile) && (
                             <div className="flex flex-1 justify-between items-center relative z-10">
                                 <span className="font-medium text-sm whitespace-nowrap">Notifications</span>
                                 {unreadCount > 0 && (
@@ -228,35 +272,34 @@ export default function StudentSidebar() {
                         )}
                     </button>
 
-                    {/* Settings Link (Pinned Bottom) */}
                     <Link
                         href={settingsLink.href}
                         className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative overflow-hidden ${pathname === settingsLink.href
                             ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
                             : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                            } ${isCollapsed ? 'justify-center px-0 mx-2' : 'gap-3'}`}
-                        title={isCollapsed ? settingsLink.label : ""}
+                            } ${isCollapsed && !isMobile ? 'justify-center px-0 mx-2' : 'gap-3'}`}
+                        title={isCollapsed && !isMobile ? settingsLink.label : ""}
+                        onClick={() => isMobile && setSidebarState(true)}
                     >
-                        <div className={`relative z-10 flex items-center justify-center ${isCollapsed ? '' : 'w-5'}`}>
+                        <div className={`relative z-10 flex items-center justify-center ${isCollapsed && !isMobile ? '' : 'w-5'}`}>
                             <settingsLink.icon className={`text-lg transition-transform group-hover:scale-105 ${pathname === settingsLink.href ? "text-white" : "text-slate-400 group-hover:text-violet-500"}`} />
                         </div>
-                        {!isCollapsed && (
+                        {(!isCollapsed || isMobile) && (
                             <span className="font-medium text-sm whitespace-nowrap relative z-10">{settingsLink.label}</span>
                         )}
                     </Link>
 
                     <button
                         onClick={() => signOut({ callbackUrl: "/login" })}
-                        className={`flex items-center gap-3 w-full px-4 py-3 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 text-left hover:text-rose-600 dark:hover:text-rose-300 rounded-xl transition-colors font-medium ${isCollapsed ? 'justify-center px-0' : ''}`}
+                        className={`flex items-center gap-3 w-full px-4 py-3 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 text-left hover:text-rose-600 dark:hover:text-rose-300 rounded-xl transition-colors font-medium ${isCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
                         title="Sign Out"
                     >
                         <FaSignOutAlt className="text-xl" />
-                        {!isCollapsed && <span>Sign Out</span>}
+                        {(!isCollapsed || isMobile) && <span>Sign Out</span>}
                     </button>
                 </div>
             </motion.div>
 
-            {/* Notification Panel Component */}
             <NotificationPanel
                 isOpen={showSidebarPanel}
                 onClose={() => setShowSidebarPanel(false)}

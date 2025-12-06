@@ -13,35 +13,40 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                console.log("Attempting login for:", credentials?.email);
+                console.log("[Auth] Attempting login for:", credentials?.email);
+                const start = Date.now();
 
                 if (!credentials?.email || !credentials?.password) {
-                    console.log("Missing credentials");
+                    console.log("[Auth] Missing credentials");
                     return null;
                 }
 
                 try {
+                    console.log(`[Auth] Queries starting at ${Date.now() - start}ms`);
                     const user = await prisma.user.findUnique({
                         where: { email: credentials.email },
                         include: { profile: true },
                     });
+                    console.log(`[Auth] User query took ${Date.now() - start}ms`);
 
                     if (!user) {
-                        console.log("User not found");
+                        console.log("[Auth] User not found");
                         return null;
                     }
 
+                    console.log(`[Auth] Bcrypt starting at ${Date.now() - start}ms`);
                     const isPasswordValid = await bcrypt.compare(
                         credentials.password,
                         user.password
                     );
+                    console.log(`[Auth] Bcrypt took ${Date.now() - start}ms`);
 
                     if (!isPasswordValid) {
-                        console.log("Invalid password");
+                        console.log("[Auth] Invalid password");
                         return null;
                     }
 
-                    console.log("Login success for user:", user.id);
+                    console.log(`[Auth] Login success for user: ${user.id} at ${Date.now() - start}ms`);
 
                     return {
                         id: user.id,
@@ -50,7 +55,7 @@ export const authOptions: NextAuthOptions = {
                         role: user.role,
                     };
                 } catch (error) {
-                    console.error("Auth error:", error);
+                    console.error("[Auth] Auth error:", error);
                     return null;
                 }
             },
