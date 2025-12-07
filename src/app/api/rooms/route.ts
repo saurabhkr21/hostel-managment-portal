@@ -23,7 +23,8 @@ export async function GET() {
                         email: true,
                         profile: {
                             select: {
-                                profileImage: true
+                                // profileImage: true // EXCLUDED for performance
+                                id: true // Placeholder to ensure profile object exists if needed, or remove profile select entirely if not needed
                             }
                         }
                     },

@@ -12,7 +12,7 @@ export default function StaffLayoutWrapper({ children }: { children: ReactNode }
             initial={false}
             animate={{ marginLeft: isMobile ? 0 : (isCollapsed ? 80 : 288) }}
             transition={{ duration: 0.15, ease: "easeInOut" }}
-            className="flex-1 overflow-y-auto min-h-screen bg-slate-50 dark:bg-slate-900"
+            className={`flex-1 overflow-y-auto min-h-screen bg-slate-50 dark:bg-slate-900 transition-all duration-200 ${isMobile ? 'pt-16 px-4' : 'p-0'}`}
             onClick={() => {
                 if (!isCollapsed && isMobile) setSidebarState(true);
             }}

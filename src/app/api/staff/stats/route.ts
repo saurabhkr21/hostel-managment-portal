@@ -53,9 +53,11 @@ export async function GET() {
                     student: { select: { name: true, profile: { select: { profileImage: true } } } }
                 }
             }),
-            // Room Data for Occupancy Map
+            // Room Data for Occupancy Map - Optimized selection
             prisma.room.findMany({
-                include: {
+                select: {
+                    block: true,
+                    capacity: true,
                     _count: {
                         select: { occupants: true }
                     }

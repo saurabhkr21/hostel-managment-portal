@@ -110,8 +110,16 @@ export default function StaffStudentsPage() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm overflow-hidden border border-emerald-200 dark:border-emerald-800">
-                                                            {student.profile?.profileImage ? (
-                                                                <img src={student.profile.profileImage} alt={student.name || "Student"} className="w-full h-full object-cover" />
+                                                            {student.profile?.profileImage !== null ? (
+                                                                <img
+                                                                    src={`/api/users/${student.id}/avatar`}
+                                                                    alt={student.name || "Student"}
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) => {
+                                                                        e.currentTarget.style.display = 'none';
+                                                                        e.currentTarget.parentElement?.classList.add('fallback-icon');
+                                                                    }}
+                                                                />
                                                             ) : (
                                                                 student.name ? student.name.charAt(0).toUpperCase() : <FaUserGraduate />
                                                             )}

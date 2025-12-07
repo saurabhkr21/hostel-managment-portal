@@ -48,15 +48,21 @@ export async function GET(req: Request) {
                 });
                 return NextResponse.json(messages);
             } else {
-                // List of conversations (Recent students who messaged)
-                // This is a complex query, simplified: find unique students from received messages
-                const distinctSenders = await prisma.message.findMany({
-                    where: { receiverId: session.user.id },
-                    distinct: ['senderId'],
-                    orderBy: { createdAt: 'desc' },
-                    include: { sender: true }
+                // List ALL students to allow starting new conversations
+                // fetching all students
+                const students = await prisma.user.findMany({
+                    where: { role: "STUDENT" },
+                    select: {
+                        id: true,
+                        name: true,
+                        role: true,
+                        // profileImage is excluded, use /api/users/[id]/avatar
+                    },
+                    orderBy: {
+                        name: "asc"
+                    }
                 });
-                return NextResponse.json(distinctSenders.map(m => m.sender));
+                return NextResponse.json(students);
             }
         }
     } catch (error) {

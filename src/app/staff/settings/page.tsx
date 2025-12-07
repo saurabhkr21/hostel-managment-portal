@@ -140,9 +140,9 @@ export default function StaffSettingsPage() {
                         >
                             <div className="relative p-8 overflow-hidden">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
-                                <div className="flex justify-between items-center relative z-10">
-                                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-                                        <div className="p-3 bg-violet-100 dark:bg-slate-700 rounded-xl">
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+                                    <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
+                                        <div className="p-3 bg-violet-100 dark:bg-slate-700 rounded-xl shrink-0">
                                             <FaUserEdit className="text-violet-600 dark:text-violet-400" />
                                         </div>
                                         Personal Information
@@ -152,7 +152,7 @@ export default function StaffSettingsPage() {
                                         whileTap={{ scale: 0.95 }}
                                         onClick={handleProfileUpdate}
                                         disabled={savingProfile}
-                                        className="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30 transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        className="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30 transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                     >
                                         <FaSave /> {savingProfile ? "Saving..." : "Save Changes"}
                                     </motion.button>
@@ -160,7 +160,26 @@ export default function StaffSettingsPage() {
                             </div>
 
                             {loadingProfile ? (
-                                <div className="p-12 text-center text-slate-400 animate-pulse">Loading profile data...</div>
+                                <div className="p-8 space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="md:col-span-2">
+                                            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded mb-2 animate-pulse"></div>
+                                            <div className="h-14 w-full bg-slate-100 dark:bg-slate-700/50 rounded-2xl animate-pulse"></div>
+                                        </div>
+                                        <div>
+                                            <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded mb-2 animate-pulse"></div>
+                                            <div className="h-12 w-full bg-slate-100 dark:bg-slate-700/50 rounded-2xl animate-pulse"></div>
+                                        </div>
+                                        <div>
+                                            <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded mb-2 animate-pulse"></div>
+                                            <div className="h-12 w-full bg-slate-100 dark:bg-slate-700/50 rounded-2xl animate-pulse"></div>
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded mb-2 animate-pulse"></div>
+                                            <div className="h-28 w-full bg-slate-100 dark:bg-slate-700/50 rounded-2xl animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             ) : (
                                 <form onSubmit={handleProfileUpdate} className="p-8 pt-0 grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                                     <div className="col-span-1 md:col-span-2 group">
@@ -379,8 +398,8 @@ export default function StaffSettingsPage() {
                         </motion.div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
 

@@ -217,7 +217,7 @@ export default function RoomsPage() {
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-3 md:p-8 transition-colors duration-300">
             <div className="max-w-[1600px] mx-auto">
                 {/* Mobile Header Spacer to avoid hamburger overlap */}
-                <div className="h-24 md:hidden w-full"></div>
+                {/* Mobile Header Spacer removed - handled by Global Layout */}
 
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <div>
@@ -252,29 +252,32 @@ export default function RoomsPage() {
                                 </div>
 
                                 {/* Filters & Sort */}
-                                <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto items-center">
+                                <div className="grid grid-cols-2 lg:flex lg:flex-row gap-3 w-full xl:w-auto items-center">
                                     {/* Block Filter */}
-                                    <div className="relative w-full sm:w-auto min-w-[160px]">
+                                    <div className="relative w-full lg:w-auto min-w-[140px]">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                             <FaBuilding />
                                         </div>
                                         <select
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                            className="w-full pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-xs font-bold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                                             value={filterBlock}
                                             onChange={(e) => setFilterBlock(e.target.value)}
                                         >
                                             <option value="All">All Blocks</option>
                                             {uniqueBlocks.map(b => <option key={b} value={b}>{b}</option>)}
                                         </select>
+                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                                            <FaSort size={10} />
+                                        </div>
                                     </div>
 
                                     {/* Type Filter */}
-                                    <div className="relative w-full sm:w-auto min-w-[150px]">
+                                    <div className="relative w-full lg:w-auto min-w-[140px]">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                             <FaFilter />
                                         </div>
                                         <select
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                            className="w-full pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-xs font-bold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                                             value={filterType}
                                             onChange={(e) => setFilterType(e.target.value)}
                                         >
@@ -284,15 +287,18 @@ export default function RoomsPage() {
                                             <option value="Triple">Triple</option>
                                             <option value="Dormitory">Dormitory</option>
                                         </select>
+                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                                            <FaSort size={10} />
+                                        </div>
                                     </div>
 
-                                    {/* Sort Dropdown */}
-                                    <div className="relative w-full sm:w-auto min-w-[180px]">
+                                    {/* Sort Dropdown - Full width on mobile/grid */}
+                                    <div className="relative w-full col-span-2 lg:col-span-1 lg:w-auto min-w-[160px]">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                             <FaSort />
                                         </div>
                                         <select
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-sm font-semibold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                            className="w-full pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-xs font-bold text-slate-700 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                                             value={sortBy}
                                             onChange={(e) => setSortBy(e.target.value)}
                                         >
@@ -522,8 +528,13 @@ export default function RoomsPage() {
                                         >
                                             <FaGripVertical className="text-slate-300 dark:text-slate-500 group-hover:text-slate-400" />
                                             <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-600 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                                {student.profile?.profileImage ? (
-                                                    <img src={student.profile.profileImage} alt={student.name || "S"} className="w-full h-full object-cover" />
+                                                {student.profile?.profileImage !== null ? (
+                                                    <img
+                                                        src={`/api/users/${student.id}/avatar`}
+                                                        alt={student.name || "S"}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => e.currentTarget.style.display = 'none'}
+                                                    />
                                                 ) : (
                                                     <span className="text-xs font-bold text-slate-500 dark:text-slate-300">
                                                         {student.name?.charAt(0) || "S"}
@@ -704,8 +715,18 @@ export default function RoomsPage() {
                                                 <div key={student.id} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-lg hover:scale-[1.02] transition-all group">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-12 h-12 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-lg overflow-hidden border-2 border-slate-100 shadow-sm">
-                                                            {student.profile?.profileImage ? (
-                                                                <img src={student.profile.profileImage} alt={student.name || "Student"} className="w-full h-full object-cover" />
+                                                            {student.id ? (
+                                                                <>
+                                                                    <img
+                                                                        src={`/api/users/${student.id}/avatar`}
+                                                                        alt={student.name || "Student"}
+                                                                        className="w-full h-full object-cover"
+                                                                        onError={(e) => e.currentTarget.style.display = 'none'}
+                                                                    />
+                                                                    <span className="absolute inset-0 flex items-center justify-center bg-violet-100 -z-10">
+                                                                        {student.name ? student.name.charAt(0) : "S"}
+                                                                    </span>
+                                                                </>
                                                             ) : (
                                                                 <span className="bg-gradient-to-br from-violet-500 to-fuchsia-600 bg-clip-text text-transparent">
                                                                     {student.name ? student.name.charAt(0) : "S"}

@@ -17,22 +17,15 @@ export async function GET() {
                 ? { studentId: session.user.id }
                 : {}; // Admin/Staff see all
 
-        // 1. Fetch complaints WITHOUT status using Prisma (to get relations and avoid enum error)
-        const complaintsPartial = await prisma.complaint.findMany({
+        const complaints = await prisma.complaint.findMany({
             where: whereClause,
-            select: {
-                id: true,
-                title: true,
-                description: true,
-                createdAt: true,
-                updatedAt: true,
-                studentId: true,
+            include: {
                 student: {
                     select: {
                         name: true,
                         profile: {
                             select: {
-                                profileImage: true,
+                                id: true, // Select ID instead of image
                             },
                         },
                         room: {
@@ -42,43 +35,13 @@ export async function GET() {
                         },
                     },
                 },
-                // Intentionally OMIT 'status' to avoid validation error
             },
             orderBy: {
                 createdAt: "desc",
             },
         });
 
-        // 2. Fetch raw statuses using MongoDB Command to bypass Enum validation
-        let rawFilter = {};
-        if (session.user.role === Role.STUDENT) {
-            rawFilter = { studentId: { "$oid": session.user.id } };
-        }
-
-        const rawResult: any = await prisma.$runCommandRaw({
-            find: "Complaint",
-            filter: rawFilter,
-            projection: { _id: 1, status: 1 }
-        });
-
-        const rawDocs = rawResult.cursor?.firstBatch || [];
-
-        // 3. Merge Status
-        const statusMap = new Map();
-        rawDocs.forEach((doc: any) => {
-            let idStr = doc._id;
-            if (typeof doc._id === 'object' && doc._id.$oid) {
-                idStr = doc._id.$oid;
-            }
-            statusMap.set(idStr.toString(), doc.status);
-        });
-
-        const mergedComplaints = complaintsPartial.map((comp) => ({
-            ...comp,
-            status: statusMap.get(comp.id) || "PENDING"
-        }));
-
-        return NextResponse.json(mergedComplaints);
+        return NextResponse.json(complaints);
 
     } catch (error) {
         console.error("Fetch complaints error:", error);

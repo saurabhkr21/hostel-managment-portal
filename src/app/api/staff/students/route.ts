@@ -34,7 +34,7 @@ export async function GET(req: Request) {
                 profile: {
                     select: {
                         phone: true,
-                        profileImage: true,
+                        // profileImage: true, // EXCLUDED for performance (Base64 is too large)
                     },
                 },
             },

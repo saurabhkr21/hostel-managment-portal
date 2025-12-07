@@ -6,6 +6,7 @@ import { FaUserGraduate, FaExclamationCircle, FaClock } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { OccupancyBarChart } from "@/components/admin/DashboardCharts";
+import StaffLoading from "./loading";
 
 interface DashboardStats {
     students: number;
@@ -26,6 +27,7 @@ export default function StaffDashboard() {
         leaves: { pending: 0, approved: 0, rejected: 0, total: 0 },
         recentActivity: { complaints: [], leaves: [] }
     });
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         fetch("/api/staff/stats")
@@ -33,8 +35,13 @@ export default function StaffDashboard() {
             .then((data) => {
                 if (!data.error) setStats(data);
             })
-            .catch((err) => console.error(err));
+            .catch((err) => console.error(err))
+            .finally(() => setIsLoading(false));
     }, []);
+
+    if (isLoading) {
+        return <StaffLoading />;
+    }
 
     const container = {
         hidden: { opacity: 0 },

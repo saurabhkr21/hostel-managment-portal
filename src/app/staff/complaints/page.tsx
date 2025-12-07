@@ -10,6 +10,7 @@ interface Complaint {
     description: string;
     status: "PENDING" | "IN_PROGRESS" | "RESOLVED";
     createdAt: string;
+    studentId: string;
     student: {
         name: string;
         profile?: {
@@ -162,18 +163,19 @@ export default function StaffComplaintsPage() {
                                         </div>
 
                                         <div className="flex items-start gap-4">
-                                            <div className="h-12 w-12 rounded-full overflow-hidden shadow-sm shrink-0 border border-slate-200 dark:border-slate-600">
-                                                {complaint.student.profile?.profileImage ? (
-                                                    <img
-                                                        src={complaint.student.profile.profileImage}
-                                                        alt={complaint.student.name}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-lg">
-                                                        {complaint.student.name.charAt(0)}
-                                                    </div>
-                                                )}
+                                            <div className="h-12 w-12 rounded-full overflow-hidden shadow-sm shrink-0 border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-700">
+                                                <img
+                                                    src={`/api/users/${complaint.studentId}/avatar`}
+                                                    alt={complaint.student.name}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                        e.currentTarget.parentElement?.classList.add('fallback-avatar');
+                                                    }}
+                                                />
+                                                <div className="hidden fallback-avatar:flex w-full h-full items-center justify-center font-bold text-violet-600 dark:text-violet-400 text-lg">
+                                                    {complaint.student.name.charAt(0)}
+                                                </div>
                                             </div>
                                             <div>
                                                 <h3 className="text-lg font-bold text-slate-800 dark:text-white leading-tight mb-1 group-hover:text-violet-700 dark:group-hover:text-violet-400 transition-colors">{complaint.title}</h3>

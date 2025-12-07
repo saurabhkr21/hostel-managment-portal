@@ -33,7 +33,7 @@ export default function StaffAttendancePage() {
 
     const fetchStudents = async () => {
         try {
-            const res = await fetch("/api/users?role=STUDENT");
+            const res = await fetch("/api/staff/students");
             const data = await res.json();
             if (!data.error) {
                 setStudents(data);
@@ -115,10 +115,13 @@ export default function StaffAttendancePage() {
     // ... existing useEffects ...
 
     const toggleSelectAll = () => {
-        if (selectedStudents.length === filteredStudents.length && filteredStudents.length > 0) {
+        // Only select students who have a room
+        const eligibleStudents = filteredStudents.filter(s => s.room);
+
+        if (selectedStudents.length === eligibleStudents.length && eligibleStudents.length > 0) {
             setSelectedStudents([]);
         } else {
-            setSelectedStudents(filteredStudents.map(s => s.id));
+            setSelectedStudents(eligibleStudents.map(s => s.id));
         }
     };
 
@@ -143,7 +146,11 @@ export default function StaffAttendancePage() {
 
     const markAll = (status: string) => {
         const newAttendance: { [key: string]: string } = {};
-        students.forEach(s => newAttendance[s.id] = status);
+        students.forEach(s => {
+            if (s.room) { // Only mark if registered
+                newAttendance[s.id] = status;
+            }
+        });
         setAttendance(newAttendance);
     };
 
@@ -382,37 +389,43 @@ export default function StaffAttendancePage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-center gap-1.5">
-                                                    {[
-                                                        {
-                                                            id: "PRESENT",
-                                                            label: "Present",
-                                                            color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:text-emerald-500",
-                                                            active: "bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20"
-                                                        },
-                                                        {
-                                                            id: "ABSENT",
-                                                            label: "Absent",
-                                                            color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-rose-500 hover:text-rose-500",
-                                                            active: "bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20"
-                                                        },
-                                                        {
-                                                            id: "LEAVE",
-                                                            label: "Leave",
-                                                            color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-500 hover:text-amber-500",
-                                                            active: "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
-                                                        },
-                                                    ].map((opt) => (
-                                                        <button
-                                                            key={opt.id}
-                                                            onClick={() => handleAttendanceChange(student.id, opt.id)}
-                                                            className={`
-                                                                px-3 py-1.5 rounded-md font-bold text-xs border transition-all duration-200 min-w-[70px]
-                                                                ${attendance[student.id] === opt.id ? opt.active : opt.color}
-                                                            `}
-                                                        >
-                                                            {opt.label}
-                                                        </button>
-                                                    ))}
+                                                    {!student.room ? (
+                                                        <div className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold text-xs rounded-lg border border-slate-200 dark:border-slate-700">
+                                                            Not Registered (No Room)
+                                                        </div>
+                                                    ) : (
+                                                        [
+                                                            {
+                                                                id: "PRESENT",
+                                                                label: "Present",
+                                                                color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:text-emerald-500",
+                                                                active: "bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20"
+                                                            },
+                                                            {
+                                                                id: "ABSENT",
+                                                                label: "Absent",
+                                                                color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-rose-500 hover:text-rose-500",
+                                                                active: "bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20"
+                                                            },
+                                                            {
+                                                                id: "LEAVE",
+                                                                label: "Leave",
+                                                                color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-500 hover:text-amber-500",
+                                                                active: "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
+                                                            },
+                                                        ].map((opt) => (
+                                                            <button
+                                                                key={opt.id}
+                                                                onClick={() => handleAttendanceChange(student.id, opt.id)}
+                                                                className={`
+                                                                    px-3 py-1.5 rounded-md font-bold text-xs border transition-all duration-200 min-w-[70px]
+                                                                    ${attendance[student.id] === opt.id ? opt.active : opt.color}
+                                                                `}
+                                                            >
+                                                                {opt.label}
+                                                            </button>
+                                                        ))
+                                                    )}
                                                 </div>
                                             </td>
                                         </motion.tr>

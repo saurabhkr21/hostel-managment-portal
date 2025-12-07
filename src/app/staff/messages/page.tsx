@@ -35,7 +35,13 @@ export default function StaffMessagesPage() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const filteredThreads = threads.filter(user =>
+        user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.role?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     // Fetch conversation threads (users who have messaged)
     const fetchThreads = async () => {
@@ -106,8 +112,8 @@ export default function StaffMessagesPage() {
     }, [messages]);
 
     return (
-        <div className="p-6 h-screen flex flex-col pt-20 sm:pt-6 bg-slate-50 dark:bg-slate-950">
-            <h1 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white flex items-center gap-3">
+        <div className="p-2 md:p-6 h-[calc(100vh-4rem)] md:h-screen flex flex-col pt-2 md:pt-6 bg-slate-50 dark:bg-slate-950">
+            <h1 className="text-xl font-bold mb-2 text-slate-800 dark:text-white flex items-center gap-2 pl-2">
                 <FaPaperPlane className="text-violet-600 dark:text-violet-400" />
                 Messages
             </h1>
@@ -116,18 +122,21 @@ export default function StaffMessagesPage() {
 
                 {/* Threads Cloud */}
                 <div className={`w-full sm:w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col ${selectedUserId ? 'hidden sm:flex' : 'flex'}`}>
+
                     <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
                         <div className="relative group">
                             <FaSearch className="absolute left-3 top-3.5 text-slate-400 group-focus-within:text-violet-500 transition-colors" />
                             <input
                                 type="text"
                                 placeholder="Search students..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full bg-slate-50 dark:bg-slate-800 pl-10 pr-4 py-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500/20 border border-transparent focus:border-violet-500/50 transition-all placeholder:text-slate-400"
                             />
                         </div>
                     </div>
                     <div className="flex-1 overflow-y-auto">
-                        {threads.length === 0 ? (
+                        {filteredThreads.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-64 text-slate-400 text-center p-6">
                                 <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
                                     <FaUserCircle className="text-3xl opacity-20" />
@@ -136,7 +145,7 @@ export default function StaffMessagesPage() {
                                 <p className="text-xs mt-1 opacity-60">Messages from students will appear here</p>
                             </div>
                         ) : (
-                            threads.map((user) => (
+                            filteredThreads.map((user) => (
                                 <button
                                     key={user.id}
                                     onClick={() => setSelectedUserId(user.id)}
@@ -145,8 +154,19 @@ export default function StaffMessagesPage() {
                                     {selectedUserId === user.id && (
                                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-violet-600 dark:bg-violet-500" />
                                     )}
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-sm ${selectedUserId === user.id ? "bg-violet-600 text-white" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"}`}>
-                                        {user.name[0]}
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-sm overflow-hidden ${selectedUserId === user.id ? "bg-violet-600 text-white" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"}`}>
+                                        <img
+                                            src={`/api/users/${user.id}/avatar`}
+                                            alt={user.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                e.currentTarget.parentElement?.classList.add('fallback-avatar');
+                                            }}
+                                        />
+                                        <span className="hidden fallback-avatar:inline">{user.name[0]}</span>
+                                        {/* Fallback span logic handled by CSS if needed, or simple JS replacement above */}
+                                        <span className="absolute inset-0 flex items-center justify-center -z-10">{user.name[0]}</span>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-baseline mb-0.5">
@@ -178,8 +198,16 @@ export default function StaffMessagesPage() {
                                     <FaSearch size={14} className="rotate-180" />
                                     {/* Using search icon rotated as generic back for now - better to use ArrowLeft if available, checking imports.. we don't have ArrowLeft imported, sticking to this or FaChevronLeft if added */}
                                 </button>
-                                <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-300 flex items-center justify-center font-bold border border-violet-200 dark:border-violet-800">
-                                    {threads.find(t => t.id === selectedUserId)?.name[0]}
+                                <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-300 flex items-center justify-center font-bold border border-violet-200 dark:border-violet-800 overflow-hidden relative">
+                                    <img
+                                        src={`/api/users/${selectedUserId}/avatar`}
+                                        alt="Avatar"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => e.currentTarget.style.display = 'none'}
+                                    />
+                                    <span className="absolute inset-0 flex items-center justify-center -z-10">
+                                        {threads.find(t => t.id === selectedUserId)?.name[0]}
+                                    </span>
                                 </div>
                                 <div>
                                     <div className="font-bold text-slate-800 dark:text-white text-base">
@@ -193,17 +221,17 @@ export default function StaffMessagesPage() {
                             </div>
 
                             {/* Messages */}
-                            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-slate-50/50 dark:bg-black/20">
+                            <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-black/20">
                                 {messages.map((msg) => {
                                     const isMe = msg.senderId === session?.user?.id;
                                     return (
                                         <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`max-w-[75%] px-5 py-3.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-all hover:shadow-md ${isMe
+                                            <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm transition-all hover:shadow-md ${isMe
                                                 ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-br-none"
                                                 : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-bl-none"
                                                 }`}>
                                                 {msg.content}
-                                                <p className={`text-[10px] mt-1.5 opacity-60 text-right ${isMe ? "text-violet-100" : "text-slate-400"}`}>
+                                                <p className={`text-[10px] mt-1 opacity-60 text-right ${isMe ? "text-violet-100" : "text-slate-400"}`}>
                                                     {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </p>
                                             </div>
