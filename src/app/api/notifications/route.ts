@@ -43,12 +43,17 @@ export async function POST(req: Request) {
             if (!recipientId) return NextResponse.json({ error: "Recipient ID/Email is required" }, { status: 400 });
 
             // Find user by Email or ID
+            // Construct proper query based on input type
+            const whereConditions: any[] = [{ email: recipientId }];
+
+            // Only check ID if the input is a valid MongoDB ObjectId (24 hex chars)
+            if (/^[0-9a-fA-F]{24}$/.test(recipientId)) {
+                whereConditions.push({ id: recipientId });
+            }
+
             const user = await prisma.user.findFirst({
                 where: {
-                    OR: [
-                        { id: recipientId },
-                        { email: recipientId }
-                    ]
+                    OR: whereConditions
                 }
             });
 
@@ -60,6 +65,7 @@ export async function POST(req: Request) {
                     type: type || "INFO",
                     title,
                     message,
+                    attachmentUrl: body.attachmentUrl,
                     read: false
                 }
             });
@@ -80,6 +86,7 @@ export async function POST(req: Request) {
                     type: type || "INFO",
                     title,
                     message,
+                    attachmentUrl: body.attachmentUrl,
                     read: false
                 }))
             });
@@ -88,7 +95,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Notification Error:", error);
-        return NextResponse.json({ error: "Failed to send notification" }, { status: 500 });
+        return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to send notification" }, { status: 500 });
     }
 }
 

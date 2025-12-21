@@ -42,35 +42,33 @@ model User {
   role      Role     @default(STUDENT)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@index([role])
-  @@index([name])
 
-  profile   Profile?
-  room      Room?    @relation(fields: [roomId], references: [id])
-  roomId    String?  @db.ObjectId
-  complaints Complaint[]
+  profile       Profile?
+  room          Room?          @relation(fields: [roomId], references: [id])
+  roomId        String?        @db.ObjectId
+  complaints    Complaint[]
   leaveRequests LeaveRequest[]
   attendance    Attendance[]
-  
+
   // AI Attendance
   faceDescriptor Json?
-  notifications Notification[]
-  fees          Fee[]
-  
+  notifications  Notification[]
+  fees           Fee[]
+
   // Messaging - Relations
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
 
-
+  @@index([role])
+  @@index([name])
 }
 
 model Profile {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  profileImage String?
-  phone     String?
-  address   String?
-  guardianName String?
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  profileImage  String?
+  phone         String?
+  address       String?
+  guardianName  String?
   guardianPhone String?
   guardianEmail String?
   fatherName    String?
@@ -86,23 +84,23 @@ model Profile {
   section       String?
   rollNo        String?
   enrollNo      String?
-  
+
   // New fields for dynamic profile
-  studentType   String?  @default("Regular")
-  highSchoolPercentage Float?
+  studentType            String? @default("Regular")
+  highSchoolPercentage   Float?
   intermediatePercentage Float?
-  graduationPercentage Float?
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @unique @db.ObjectId
+  graduationPercentage   Float?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique @db.ObjectId
 }
 
 model Room {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  roomNumber String   @unique
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  roomNumber String  @unique
   capacity   Int
-  type       String   // e.g., "Single", "Double"
-  block      String?  @default("Main A") // e.g., "Block A", "Kaveri"
+  type       String // e.g., "Single", "Double"
+  block      String? @default("Main A") // e.g., "Block A", "Kaveri"
   occupants  User[]
 
   @@index([block])
@@ -122,45 +120,46 @@ model Complaint {
 }
 
 model LeaveRequest {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  type        String      // "LEAVE" or "OUTPASS"
-  fromDate    DateTime
-  toDate      DateTime
-  reason      String
-  contactNo   String
-  address     String
-  status      LeaveStatus @default(PENDING)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  student     User        @relation(fields: [studentId], references: [id])
-  studentId   String      @db.ObjectId
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  type      String // "LEAVE" or "OUTPASS"
+  fromDate  DateTime
+  toDate    DateTime
+  reason    String
+  contactNo String
+  address   String
+  status    LeaveStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  student   User   @relation(fields: [studentId], references: [id])
+  studentId String @db.ObjectId
 
   @@index([status, createdAt])
 }
 
 model Attendance {
-  id          String           @id @default(auto()) @map("_id") @db.ObjectId
-  date        DateTime
-  status      AttendanceStatus
-  markedBy    String           // Staff ID/Name
-  createdAt   DateTime         @default(now())
-  
-  student     User             @relation(fields: [studentId], references: [id])
-  studentId   String           @db.ObjectId
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  date      DateTime
+  status    AttendanceStatus
+  markedBy  String // Staff ID/Name
+  createdAt DateTime         @default(now())
+
+  student   User   @relation(fields: [studentId], references: [id])
+  studentId String @db.ObjectId
 
   @@unique([studentId, date])
 }
 
 model Notification {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  title     String?  // Optional title for circulars
-  message   String
-  type      String   @default("INFO") // INFO, WARNING, CIRCULAR, URGENT
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  user          User     @relation(fields: [userId], references: [id])
+  title         String? // Optional title for circulars
+  message       String
+  type          String   @default("INFO") // INFO, WARNING, CIRCULAR, URGENT
+  attachmentUrl String?
+  read          Boolean  @default(false)
+  createdAt     DateTime @default(now())
 }
 
 model Fee {
@@ -168,22 +167,22 @@ model Fee {
   studentId   String   @db.ObjectId
   student     User     @relation(fields: [studentId], references: [id])
   amount      Float
-  type        String   // e.g., "Hostel Fee", "Mess Fee"
-  status      String   // "Paid", "Pending"
+  type        String // e.g., "Hostel Fee", "Mess Fee"
+  status      String // "Paid", "Pending"
   paymentDate DateTime @default(now())
   remarks     String?
 }
 
 model Message {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  content    String
-  
-  senderId   String   @db.ObjectId
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
-  
-  receiverId String   @db.ObjectId
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  
-  read       Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  content String
+
+  senderId String @db.ObjectId
+  sender   User   @relation("SentMessages", fields: [senderId], references: [id])
+
+  receiverId String @db.ObjectId
+  receiver   User   @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
