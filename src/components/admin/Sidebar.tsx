@@ -39,8 +39,11 @@ export default function AdminSidebar() {
         { href: "/admin/attendance", label: "Attendance", icon: FaCalendarAlt },
         { href: "/admin/rooms", label: "Rooms", icon: FaBed },
         { href: "/admin/fees", label: "Fees", icon: FaMoneyBillWave },
-        { href: "/admin/notifications", label: "Notifications", icon: FaBullhorn },
         { href: "/admin/reports", label: "Reports", icon: FaFileAlt },
+    ];
+
+    const bottomLinks = [
+        { href: "/admin/notifications", label: "Notifications", icon: FaBullhorn },
         { href: "/admin/settings", label: "Settings", icon: FaCog },
     ];
 
@@ -167,14 +170,38 @@ export default function AdminSidebar() {
                     </nav>
 
                     {/* Footer Actions - Fixed at Bottom */}
-                    <div className={`w-full pb-6 pt-4 space-y-2  dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 mt-auto backdrop-blur-sm ${isCollapsed && !isMobile ? 'px-1' : 'px-2'}`}>
+                    <div className={`w-full pb-6 pt-4 space-y-2 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 mt-auto backdrop-blur-sm ${isCollapsed && !isMobile ? 'px-1' : 'px-2'}`}>
+                        {bottomLinks.map((link) => {
+                            const Icon = link.icon;
+                            const isActive = pathname === link.href;
+                            return (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative ${isActive
+                                        ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
+                                        : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+                                        } ${isCollapsed && !isMobile ? 'justify-center px-0 mx-0' : 'gap-3'}`}
+                                    title={isCollapsed && !isMobile ? link.label : ""}
+                                    onClick={() => isMobile && setSidebarState(true)}
+                                >
+                                    <div className={`relative z-10 flex items-center justify-center ${isCollapsed && !isMobile ? '' : 'w-5'}`}>
+                                        <Icon className={`text-lg transition-transform group-hover:scale-105 ${isActive ? "text-white" : "currentColor"}`} />
+                                    </div>
+                                    {(!isCollapsed || isMobile) && <span className="text-sm font-medium relative z-10 whitespace-nowrap">{link.label}</span>}
+                                </Link>
+                            );
+                        })}
+
                         <button
                             onClick={() => signOut()}
-                            className={`flex items-center gap-3 px-4 py-3 w-full text-left text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-300 rounded-xl transition-all duration-300 group ${isCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
+                            className={`flex items-center gap-3 px-3 py-2.5 mx-2 w-auto text-left text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-300 rounded-lg transition-all duration-300 group ${isCollapsed && !isMobile ? 'justify-center px-0 mx-0' : ''}`}
                             title="Sign Out"
                         >
-                            <FaSignOutAlt className="group-hover:translate-x-1 transition-transform text-xl" />
-                            {(!isCollapsed || isMobile) && <span className="font-medium">Sign Out</span>}
+                            <div className={`relative z-10 flex items-center justify-center ${isCollapsed && !isMobile ? '' : 'w-5'}`}>
+                                <FaSignOutAlt className="group-hover:translate-x-1 transition-transform text-lg" />
+                            </div>
+                            {(!isCollapsed || isMobile) && <span className="font-medium text-sm">Sign Out</span>}
                         </button>
                     </div>
                 </div>

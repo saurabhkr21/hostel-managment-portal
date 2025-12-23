@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaMoon, FaBell, FaLock, FaShieldAlt, FaEnvelope, FaMobileAlt, FaSave, FaUser, FaUserEdit, FaBirthdayCake, FaPhone, FaMapMarkerAlt, FaHistory, FaCheckCircle } from "react-icons/fa";
+import { FaMoon, FaBell, FaLock, FaShieldAlt, FaEnvelope, FaMobileAlt, FaSave, FaUser, FaUserEdit, FaBirthdayCake, FaPhone, FaMapMarkerAlt, FaHistory, FaCheckCircle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -19,6 +19,7 @@ export default function StaffSettingsPage() {
     // Password State
     const [passwordData, setPasswordData] = useState({ current: "", new: "", confirm: "" });
     const [loadingPassword, setLoadingPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState({ current: false, new: false, confirm: false });
 
     // Notification State
     const [notifications, setNotifications] = useState({
@@ -123,7 +124,7 @@ export default function StaffSettingsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-8"
                 >
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">Account Settings</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">Account Settings</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-3 text-lg font-medium">Manage your digital identity and security with precision</p>
                 </motion.div>
 
@@ -152,7 +153,7 @@ export default function StaffSettingsPage() {
                                         whileTap={{ scale: 0.95 }}
                                         onClick={handleProfileUpdate}
                                         disabled={savingProfile}
-                                        className="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30 transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        className="w-full md:w-auto px-6 py-2.5 bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30 transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                     >
                                         <FaSave /> {savingProfile ? "Saving..." : "Save Changes"}
                                     </motion.button>
@@ -270,7 +271,7 @@ export default function StaffSettingsPage() {
                             transition={{ delay: 0.1, duration: 0.3 }}
                             className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-100 dark:border-slate-700 overflow-hidden"
                         >
-                            <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-700/30">
+                            <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-linear-to-r from-slate-50 to-transparent dark:from-slate-700/30">
                                 <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
                                     <FaMoon className="text-violet-500" /> Preferences
                                 </h2>
@@ -326,7 +327,7 @@ export default function StaffSettingsPage() {
                             transition={{ delay: 0.2, duration: 0.3 }}
                             className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-100 dark:border-slate-700 overflow-hidden"
                         >
-                            <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-emerald-50 to-transparent dark:from-emerald-900/10">
+                            <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-linear-to-r from-emerald-50 to-transparent dark:from-emerald-900/10">
                                 <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
                                     <FaShieldAlt className="text-emerald-500" /> Security
                                 </h2>
@@ -336,35 +337,56 @@ export default function StaffSettingsPage() {
                                     <div className="relative">
                                         <FaLock className="absolute left-4 top-3.5 text-slate-400 dark:text-slate-300" />
                                         <input
-                                            type="password"
+                                            type={showPassword.current ? "text" : "password"}
                                             required
                                             value={passwordData.current}
                                             onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
-                                            className="w-full pl-12 p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all"
+                                            className="w-full pl-12 pr-10 p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all"
                                             placeholder="Current Password"
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword({ ...showPassword, current: !showPassword.current })}
+                                            className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                        >
+                                            {showPassword.current ? <FaEyeSlash /> : <FaEye />}
+                                        </button>
                                     </div>
                                     <div className="relative">
                                         <FaLock className="absolute left-4 top-3.5 text-slate-400 dark:text-slate-300" />
                                         <input
-                                            type="password"
+                                            type={showPassword.new ? "text" : "password"}
                                             required
                                             value={passwordData.new}
                                             onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-                                            className="w-full pl-12 p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all"
+                                            className="w-full pl-12 pr-10 p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all"
                                             placeholder="New Password"
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword({ ...showPassword, new: !showPassword.new })}
+                                            className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                        >
+                                            {showPassword.new ? <FaEyeSlash /> : <FaEye />}
+                                        </button>
                                     </div>
                                     <div className="relative">
                                         <FaCheckCircle className="absolute left-4 top-3.5 text-slate-400 dark:text-slate-300" />
                                         <input
-                                            type="password"
+                                            type={showPassword.confirm ? "text" : "password"}
                                             required
                                             value={passwordData.confirm}
                                             onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
-                                            className="w-full pl-12 p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all"
+                                            className="w-full pl-12 pr-10 p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all"
                                             placeholder="Confirm New Password"
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword({ ...showPassword, confirm: !showPassword.confirm })}
+                                            className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                        >
+                                            {showPassword.confirm ? <FaEyeSlash /> : <FaEye />}
+                                        </button>
                                     </div>
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}

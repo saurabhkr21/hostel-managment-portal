@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { FaUserCircle, FaPaperPlane, FaSearch, FaCheck, FaTrash, FaInbox, FaUserClock } from "react-icons/fa";
+import { FaUserCircle, FaPaperPlane, FaSearch, FaCheck, FaTrash, FaInbox, FaUserClock, FaArrowLeft } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 
 interface Message {
@@ -158,13 +158,13 @@ export default function StudentMessagesPage() {
     const displayList = searchQuery.trim().length > 0 ? searchResults : threads;
 
     return (
-        <div className="p-2 md:p-6 h-[calc(100vh-4rem)] md:h-screen flex flex-col pt-2 md:pt-6 bg-slate-50 dark:bg-slate-950">
-            <h1 className="text-xl font-bold mb-4 text-slate-800 dark:text-white flex items-center gap-2 pl-2">
-                <FaPaperPlane className="text-violet-600 dark:text-violet-400" />
+        <div className="p-0 md:p-6 h-dvh md:h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
+            <h1 className="text-xl font-bold mb-4 text-slate-800 dark:text-white flex items-center gap-2 pl-4 py-4 md:pl-2 md:py-0 border-b md:border-none border-slate-200 dark:border-slate-800 bg-white md:bg-transparent dark:bg-slate-900 md:dark:bg-transparent">
+                <FaPaperPlane className="ml-12 md:ml-0 text-violet-600 dark:text-violet-400" />
                 Messages
             </h1>
 
-            <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex">
+            <div className="flex-1 bg-white dark:bg-slate-900 rounded-none md:rounded-2xl shadow-none md:shadow-xl border-t md:border border-slate-200 dark:border-slate-800 overflow-hidden flex">
 
                 {/* Left Sidebar */}
                 <div className={`w-full sm:w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col ${selectedUserId ? 'hidden sm:flex' : 'flex'}`}>
@@ -263,7 +263,7 @@ export default function StudentMessagesPage() {
                             {/* Header */}
                             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
                                 <button onClick={() => setSelectedUserId(null)} className="sm:hidden p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500">
-                                    <FaSearch size={14} className="rotate-180" />
+                                    <FaArrowLeft size={16} />
                                 </button>
                                 <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-300 flex items-center justify-center font-bold border border-violet-200 dark:border-violet-800 overflow-hidden">
                                     {currentThread?.profileImage ? (

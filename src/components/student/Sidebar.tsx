@@ -149,58 +149,7 @@ export default function StudentSidebar() {
                                 </button>
                             )}
 
-                            {/* Header Notification Icon - Only show on Desktop here, mobile has sidebar link */}
-                            {!isMobile && (
-                                <div className="relative">
-                                    <button
-                                        onClick={() => setShowHeaderDropdown(!showHeaderDropdown)}
-                                        className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors relative"
-                                    >
-                                        <FaBell />
-                                        {unreadCount > 0 && (
-                                            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
-                                        )}
-                                    </button>
-                                    <AnimatePresence>
-                                        {showHeaderDropdown && (
-                                            <>
-                                                <div className="fixed inset-0 z-40" onClick={() => setShowHeaderDropdown(false)} />
-                                                <motion.div
-                                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                    className="absolute left-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden"
-                                                >
-                                                    <div className="p-3 border-b border-slate-100 dark:border-slate-700 font-bold text-sm text-slate-800 dark:text-white flex justify-between items-center">
-                                                        <span>Notifications</span>
-                                                        <span className="text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 px-2 py-0.5 rounded-full">{unreadCount} New</span>
-                                                    </div>
-                                                    <div className="max-h-64 overflow-y-auto custom-scrollbar">
-                                                        {notifications.length === 0 ? (
-                                                            <div className="p-8 text-center text-slate-400 text-xs">No notifications</div>
-                                                        ) : (
-                                                            notifications.map((n) => (
-                                                                <div
-                                                                    key={n.id}
-                                                                    onClick={() => markAsRead(n.id)}
-                                                                    className={`p-3 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors ${!n.read ? "bg-violet-50/50 dark:bg-violet-900/10" : ""}`}
-                                                                >
-                                                                    <p className={`text-sm ${!n.read ? "font-bold text-slate-800 dark:text-white" : "text-slate-600 dark:text-slate-300"}`}>
-                                                                        {n.message}
-                                                                    </p>
-                                                                    <p className="text-[10px] text-slate-400 mt-1">
-                                                                        {new Date(n.createdAt).toLocaleString()}
-                                                                    </p>
-                                                                </div>
-                                                            ))
-                                                        )}
-                                                    </div>
-                                                </motion.div>
-                                            </>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            )}
+
 
                             {!isMobile && (
                                 <button

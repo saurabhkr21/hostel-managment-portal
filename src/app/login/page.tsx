@@ -8,11 +8,11 @@ import { FaUser, FaLock, FaRedo, FaEye, FaEyeSlash, FaHotel, FaFacebook, FaTwitt
 
 // Curated list of high-quality nature wallpapers
 const BACKGROUND_IMAGES = [
-    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2070&auto=format&fit=crop", // Nature/Valley
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1948&auto=format&fit=crop", // Foggy Mountains
-    "https://images.unsplash.com/photo-1433086966358-54859d0ed716?q=80&w=1920&auto=format&fit=crop", // Waterfall
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop", // Yosemite
-    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2074&auto=format&fit=crop"  // Forest
+    "https://quantumuniversity.edu.in/media/gallery/Infrastructure/Hostel/Quantum_Gallery_2017_041.jpg", // Hostel Building
+    "https://quantumuniversity.edu.in/media/gallery/Infrastructure/Building/Quantum_Gallery_2017_02.jpg", // Campus Architecture
+    "https://quantumuniversity.edu.in/media/gallery/Infrastructure/Building/Quantum_Gallery_2017_01.jpg", // Main Building
+    "https://quantumuniversity.edu.in/media/gallery/Infrastructure/Building/Quantum_Gallery_2017_09.jpg", // University Infrastructure
+    "https://quantumuniversity.edu.in/media/gallery/Infrastructure/Sports/Quantum_Gallery_2017_075.jpg"  // Sports Complex
 ];
 
 export default function LoginPage() {
@@ -79,33 +79,59 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center p-4">
+        <div className="h-dvh w-full overflow-hidden relative flex items-center justify-center p-4">
             {/* Background Image with Overlay */}
-            <div className="fixed inset-0 z-0">
+            <div className="absolute inset-0 z-0 h-dvh w-full overflow-hidden">
                 <div
-                    className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 transform scale-105"
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000"
                     style={{ backgroundImage: `url(${bgImage})` }}
                 />
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
             </div>
 
-            <div className="w-full max-w-7xl mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="w-full max-w-7xl mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center px-4 md:px-12 h-full">
 
-                {/* Left Side: Welcome Text */}
+                {/* Left Side: Welcome Text & Socials */}
                 <motion.div
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="text-white space-y-6 text-center md:text-left hidden md:block" // Hidden on mobile to avoid duplication/clutter if we move content
+                    className="text-white space-y-8 hidden md:flex flex-col justify-center h-full max-h-[80vh]"
                 >
-                    <div className="inline-flex items-center gap-3 text-white/90 mb-2 justify-center md:justify-start">
-                        <FaHotel className="text-3xl" />
-                        <span className="text-xl font-bold tracking-wider uppercase">Hostel Portal</span>
+                    <div className="space-y-6">
+                        <div className="inline-flex items-center gap-3 text-white/90">
+                            <div className="p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20">
+                                <FaHotel className="text-3xl" />
+                            </div>
+                            <span className="text-xl font-bold tracking-wider uppercase">Hostel Portal</span>
+                        </div>
+
+                        <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight tracking-tight">
+                            Welcome <br />
+                            <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-400 to-amber-200">
+                                Back
+                            </span>
+                        </h1>
+
+                        <p className="text-lg text-white/80 max-w-md leading-relaxed">
+                            Sign in to access your dashboard, manage hostel activities, and stay connected with your campus community.
+                        </p>
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                        Welcome <br className="hidden md:block" /> Back
-                    </h1>
-                    {/* Description and Icons moved to Right Side */}
+
+                    <div className="space-y-6 pt-4">
+                        <div className="flex gap-4">
+                            {[FaFacebook, FaTwitter, FaInstagram, FaYoutube].map((Icon, i) => (
+                                <a key={i} href="#" className="w-12 h-12 rounded-full bg-white/5 hover:bg-white/20 flex items-center justify-center transition-all duration-300 backdrop-blur-md border border-white/10 hover:scale-110 group">
+                                    <Icon className="text-xl text-white/90 group-hover:text-white" />
+                                </a>
+                            ))}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-white/50 font-medium">
+                            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                            <span className="w-1 h-1 rounded-full bg-white/30"></span>
+                            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                        </div>
+                    </div>
                 </motion.div>
 
                 {/* Right Side: Login Form */}
@@ -114,56 +140,67 @@ export default function LoginPage() {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="w-full max-w-md bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-2xl"
+                        className="w-full max-w-md bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden group"
                     >
-                        {/* Mobile Logo/Header to ensure branding is visible on mobile since left column is hidden on mobile now or just minimal */}
-                        <div className="md:hidden text-center mb-6 space-y-2">
-                            <div className="inline-flex items-center gap-2 text-white/90">
+                        {/* Shine Effect */}
+                        <div className="absolute inset-0 bg-linear-to-tr from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+                        {/* Mobile Logo/Header */}
+                        <div className="md:hidden text-center mb-8 space-y-3">
+                            <div className="inline-flex items-center gap-2 text-white/90 justify-center">
                                 <FaHotel className="text-2xl" />
                                 <span className="text-lg font-bold tracking-wider uppercase">Hostel Portal</span>
                             </div>
                             <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
                         </div>
 
-                        <div className="text-center md:text-left mb-6 hidden md:block">
-                            <h2 className="text-2xl md:text-3xl font-bold text-white">Sign In</h2>
-                            <p className="text-white/60 text-sm mt-1">Enter your details to continue</p>
+                        <div className="mb-8 hidden md:block">
+                            <h2 className="text-3xl font-bold text-white">Sign In</h2>
+                            <p className="text-white/60 text-sm mt-2">Enter your credentials to access your account</p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-5">
+                        <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
                             {error && (
-                                <div className="bg-red-500/20 border-l-4 border-red-500 p-3 rounded text-white text-sm backdrop-blur-md">
+                                <div className="bg-red-500/20 border-l-4 border-red-500 p-4 rounded-r-lg text-white text-sm backdrop-blur-md animate-shake">
                                     <p className="font-bold">Error: {error}</p>
                                 </div>
                             )}
 
-                            <div className="space-y-1.5">
-                                <label className="text-white/90 text-sm font-medium ml-1">Email Address</label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="name@example.com"
-                                    required
-                                    className="w-full px-4 py-3 rounded-lg bg-white/90 focus:bg-white text-slate-900 placeholder-slate-500 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-lg"
-                                />
+                            <div className="space-y-2">
+                                <label className="text-white/90 text-xs font-bold ml-1 uppercase tracking-wider">Email Address</label>
+                                <div className="relative group/input">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <FaUser className="text-slate-500 group-focus-within/input:text-orange-600 transition-colors" />
+                                    </div>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="name@example.com"
+                                        required
+                                        className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/90 focus:bg-white text-slate-900 placeholder-slate-500 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-lg"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-1.5">
-                                <label className="text-white/90 text-sm font-medium ml-1">Password</label>
-                                <div className="relative">
+                            <div className="space-y-2">
+                                <label className="text-white/90 text-xs font-bold ml-1 uppercase tracking-wider">Password</label>
+                                <div className="relative group/input">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <FaLock className="text-slate-500 group-focus-within/input:text-orange-600 transition-colors" />
+                                    </div>
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="Enter password"
+                                        placeholder="••••••••"
                                         required
-                                        className="w-full px-4 py-3 rounded-lg bg-white/90 focus:bg-white text-slate-900 placeholder-slate-500 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-lg"
+                                        className="w-full pl-11 pr-12 py-3.5 rounded-xl bg-white/90 focus:bg-white text-slate-900 placeholder-slate-500 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-lg"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 p-1"
+                                        className="absolute right-0 top-0 h-full px-4 text-slate-500 hover:text-slate-700 transition-colors"
                                     >
                                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                                     </button>
@@ -171,29 +208,35 @@ export default function LoginPage() {
                             </div>
 
                             {/* Captcha */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-between px-3 border border-white/10 h-12">
-                                    <span className="font-mono font-bold text-white tracking-widest text-lg">{generatedCaptcha}</span>
-                                    <button type="button" onClick={generateCaptcha} className="text-white/70 hover:text-white p-1">
-                                        <FaRedo size={14} />
-                                    </button>
+                            <div className="grid grid-cols-5 gap-3">
+                                <div className="col-span-2 bg-linear-to-tr from-white/10 to-white/5 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/10 relative overflow-hidden group/captcha cursor-pointer" onClick={generateCaptcha} title="Click to refresh">
+                                    <span className="font-mono font-bold text-white tracking-[0.2em] text-lg select-none z-10">{generatedCaptcha}</span>
+                                    {/* Abstract background for captcha */}
+                                    <div className="absolute inset-0 bg-white/5 opacity-50 group-hover/captcha:opacity-75 transition-opacity" style={{ backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
+                                    <div className="absolute top-1 right-1">
+                                        <FaRedo size={10} className="text-white/40" />
+                                    </div>
                                 </div>
                                 <input
                                     type="text"
                                     value={captcha}
                                     onChange={(e) => setCaptcha(e.target.value)}
-                                    placeholder="CODE"
+                                    placeholder="Enter Code"
                                     required
-                                    className="h-12 w-full px-4 rounded-lg bg-white/90 focus:bg-white text-slate-900 placeholder-slate-500 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-lg text-center"
+                                    className="col-span-3 h-12 w-full px-4 rounded-xl bg-black/20 focus:bg-black/40 text-white placeholder-white/30 border border-white/10 focus:border-orange-500/50 outline-none focus:ring-4 focus:ring-orange-500/10 transition-all shadow-inner text-center font-mono tracking-widest uppercase"
                                 />
                             </div>
 
-                            <div className="flex items-center justify-between text-sm">
-                                <label className="flex items-center gap-2 text-white/90 cursor-pointer">
-                                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500" />
+                            <div className="flex items-center justify-between text-sm pt-2">
+                                <label className="flex items-center gap-2 text-white/80 cursor-pointer hover:text-white transition-colors select-none">
+                                    <div className="relative flex items-center">
+                                        <input type="checkbox" className="peer sr-only" />
+                                        <div className="w-5 h-5 border-2 border-white/30 rounded peer-checked:bg-orange-500 peer-checked:border-orange-500 transition-all"></div>
+                                        <svg className="w-3 h-3 text-white absolute top-1 left-1 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     Remember Me
                                 </label>
-                                <a href="#" className="text-white/90 hover:text-white hover:underline">
+                                <a href="#" className="text-orange-400 hover:text-orange-300 font-medium hover:underline transition-all">
                                     Lost Password?
                                 </a>
                             </div>
@@ -201,16 +244,19 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg shadow-lg hover:shadow-orange-500/30 transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full py-4 bg-linear-to-tr from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-orange-900/20 hover:shadow-orange-600/40 transition-all transform hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none mt-2"
                             >
-                                {loading ? "Signing in..." : "Sign in now"}
+                                {loading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        Signing In...
+                                    </span>
+                                ) : "Sign In"}
                             </button>
 
-                            {/* Footer Content: Description & Socials */}
-                            <div className="text-center pt-6 border-t border-white/10 mt-6">
-                                <p className="text-white/80 text-sm leading-relaxed mb-4">
-                                    Sign in to access your dashboard, manage hostel activities, and stay connected.
-                                </p>
+                            {/* Mobile Footer (visible only on mobile) */}
+                            <div className="md:hidden text-center pt-6 border-t border-white/10 mt-6 space-y-4">
+                                <p className="text-white/70 text-sm">Or continue with</p>
                                 <div className="flex gap-4 justify-center">
                                     {[FaFacebook, FaTwitter, FaInstagram, FaYoutube].map((Icon, i) => (
                                         <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10">
@@ -218,11 +264,10 @@ export default function LoginPage() {
                                         </a>
                                     ))}
                                 </div>
-
-                                <div className="text-xs text-white/50 mt-6 space-x-2">
-                                    <a href="#" className="hover:text-white transition-colors">Terms</a>
+                                <div className="text-xs text-white/50 space-x-2 pt-2">
+                                    <a href="#" className="hover:text-white">Terms</a>
                                     <span>•</span>
-                                    <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                                    <a href="#" className="hover:text-white">Privacy</a>
                                 </div>
                             </div>
                         </form>

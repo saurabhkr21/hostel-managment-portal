@@ -90,7 +90,7 @@ export default function AdminNotifications() {
         <div className="p-6 max-w-7xl mx-auto space-y-6">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">
+                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-violet-600 to-indigo-600">
                         Notifications & Circulars
                     </h1>
                     <p className="text-slate-500 text-sm">Broadcast updates to students or staff</p>
@@ -252,8 +252,8 @@ export default function AdminNotifications() {
                             <button
                                 type="submit"
                                 disabled={isLoading || uploading}
-                                className="w-full py-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-violet-500/20 active:scale-[99%] transition-all flex justify-center items-center gap-2 disabled:opacity-70"
-                            >
+                                className="w-full py-4 bg-linear-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-violet-500/20 active:scale-[99%] transition-all flex justify-center items-center gap-2 disabled:opacity-70"
+                            > 
                                 {isLoading ? (
                                     <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
                                 ) : (

@@ -34,6 +34,9 @@ export default function StaffSidebar() {
         { href: "/staff/leaves", label: "Leaves", icon: FaSuitcase },
         { href: "/staff/attendance", label: "Attendance", icon: FaCalendarAlt },
         { href: "/staff/complaints", label: "Complaints", icon: FaClipboardList },
+    ];
+
+    const bottomLinks = [
         { href: "/staff/notifications", label: "Notifications", icon: FaBullhorn },
         { href: "/staff/settings", label: "Settings", icon: FaCog },
     ];
@@ -157,7 +160,27 @@ export default function StaffSidebar() {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-1">
+                    {bottomLinks.map((link) => {
+                        const Icon = link.icon;
+                        const isActive = pathname === link.href;
+                        return (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative ${isActive
+                                    ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
+                                    : "text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                                    } ${isCollapsed && !isMobile ? 'justify-center px-0 mx-2' : 'gap-3'}`}
+                                title={isCollapsed && !isMobile ? link.label : ""}
+                                onClick={() => isMobile && setSidebarState(true)}
+                            >
+                                <Icon className={`text-lg min-w-[20px] transition-transform group-hover:scale-105 ${isActive ? "" : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"}`} />
+                                {(!isCollapsed || isMobile) && <span className="whitespace-nowrap text-sm font-medium">{link.label}</span>}
+                            </Link>
+                        );
+                    })}
+
                     <button
                         onClick={() => signOut({ callbackUrl: "/login" })}
                         className={`flex items-center px-4 py-3 w-full text-left text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 hover:text-rose-600 dark:hover:text-rose-300 rounded-xl transition-all duration-200 group ${isCollapsed && !isMobile ? 'justify-center px-0' : 'gap-3'}`}

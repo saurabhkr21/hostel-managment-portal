@@ -108,7 +108,7 @@ export default function StudentDashboard() {
                             Welcome back, <span className="font-semibold text-violet-600 dark:text-violet-400">{session?.user?.name}</span>
                         </p>
                     </div>
-                    <div className="w-full md:w-auto px-5 py-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium flex items-center justify-center md:justify-start gap-2">
+                    <div className="hidden md:flex w-full md:w-auto px-5 py-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium items-center justify-center md:justify-start gap-2">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
@@ -123,7 +123,7 @@ export default function StudentDashboard() {
                             className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl border border-slate-100 dark:border-slate-700 group"
                         >
                             {/* Card Header with Glassmorphism feel */}
-                            <div className="relative h-32 bg-gradient-to-r from-violet-600 to-indigo-600 overflow-hidden">
+                            <div className="relative h-32 bg-linear-to-tr from-violet-600 to-indigo-600 overflow-hidden">
                                 {/* Optimized: CSS Pattern instead of blocking image */}
                                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "24px 24px" }}></div>
                             </div>

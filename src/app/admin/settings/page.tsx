@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaMoon, FaBell, FaLock, FaShieldAlt, FaEnvelope, FaMobileAlt, FaSave } from "react-icons/fa";
+import { FaMoon, FaBell, FaLock, FaShieldAlt, FaEnvelope, FaMobileAlt, FaSave, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -14,6 +14,7 @@ export default function SettingsPage() {
     // Password State
     const [passwordData, setPasswordData] = useState({ current: "", new: "", confirm: "" });
     const [loadingPassword, setLoadingPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState({ current: false, new: false, confirm: false });
 
     // Notification State
     const [notifications, setNotifications] = useState({
@@ -191,37 +192,64 @@ export default function SettingsPage() {
                                 <form onSubmit={handlePasswordUpdate} className="space-y-4">
                                     <div>
                                         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Current Password</label>
-                                        <input
-                                            type="password"
-                                            required
-                                            value={passwordData.current}
-                                            onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
-                                            className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition-all"
-                                            placeholder="••••••••"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword.current ? "text" : "password"}
+                                                required
+                                                value={passwordData.current}
+                                                onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
+                                                className="w-full p-3 pr-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition-all"
+                                                placeholder="••••••••"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(prev => ({ ...prev, current: !prev.current }))}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none"
+                                            >
+                                                {showPassword.current ? <FaEyeSlash /> : <FaEye />}
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">New Password</label>
-                                            <input
-                                                type="password"
-                                                required
-                                                value={passwordData.new}
-                                                onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-                                                className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition-all"
-                                                placeholder="••••••••"
-                                            />
+                                            <div className="relative">
+                                                <input
+                                                    type={showPassword.new ? "text" : "password"}
+                                                    required
+                                                    value={passwordData.new}
+                                                    onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
+                                                    className="w-full p-3 pr-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition-all"
+                                                    placeholder="••••••••"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none"
+                                                >
+                                                    {showPassword.new ? <FaEyeSlash /> : <FaEye />}
+                                                </button>
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Confirm</label>
-                                            <input
-                                                type="password"
-                                                required
-                                                value={passwordData.confirm}
-                                                onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
-                                                className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition-all"
-                                                placeholder="••••••••"
-                                            />
+                                            <div className="relative">
+                                                <input
+                                                    type={showPassword.confirm ? "text" : "password"}
+                                                    required
+                                                    value={passwordData.confirm}
+                                                    onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
+                                                    className="w-full p-3 pr-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition-all"
+                                                    placeholder="••••••••"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none"
+                                                >
+                                                    {showPassword.confirm ? <FaEyeSlash /> : <FaEye />}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <button

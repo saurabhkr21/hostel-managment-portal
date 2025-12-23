@@ -101,11 +101,11 @@ export default function StudentAttendancePage() {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-0.5 md:p-6 m-3 md:m-0 md:pt-6 transition-colors duration-300">
             <div className="max-w-6xl mx-auto space-y-8">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Attendance Overview</h1>
+                        <h1 className="ml-16 md:ml-0 text-2xl font-bold text-slate-800 dark:text-white">Attendance Overview</h1>
                         <p className="text-slate-500 dark:text-slate-400 mt-1">Track your daily attendance performance</p>
                     </div>
                     <div className="px-4 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300 shadow-sm">
