@@ -221,7 +221,7 @@ export default function LoginPage() {
                                     type="text"
                                     value={captcha}
                                     onChange={(e) => setCaptcha(e.target.value)}
-                                    placeholder="Enter Code"
+                                    placeholder="captcha"
                                     required
                                     className="col-span-3 h-12 w-full px-4 rounded-xl bg-black/20 focus:bg-black/40 text-white placeholder-white/30 border border-white/10 focus:border-orange-500/50 outline-none focus:ring-4 focus:ring-orange-500/10 transition-all shadow-inner text-center font-mono tracking-widest uppercase"
                                 />
