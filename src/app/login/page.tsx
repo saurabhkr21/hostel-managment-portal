@@ -255,8 +255,8 @@ export default function LoginPage() {
                             </button>
 
                             {/* Mobile Footer (visible only on mobile) */}
-                            <div className="md:hidden text-center pt-6 border-t border-white/10 mt-6 space-y-4">
-                                <p className="text-white/70 text-sm">Or continue with</p>
+                            <div className="md:hidden text-center pt-3 border-t border-white/10  space-y-4">
+                                <p className="text-white/70 text-sm">connect with</p>
                                 <div className="flex gap-4 justify-center">
                                     {[FaFacebook, FaTwitter, FaInstagram, FaYoutube].map((Icon, i) => (
                                         <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10">
