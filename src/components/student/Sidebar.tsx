@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaMoon, FaSun, FaUserCircle, FaCog, FaMoneyBillWave, FaBell, FaSuitcase, FaClipboardList, FaBars } from "react-icons/fa";
+import { FaHome, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaMoon, FaSun, FaUserCircle, FaCog, FaMoneyBillWave, FaBell, FaSuitcase, FaClipboardList, FaBars, FaComments } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSidebar } from "@/components/providers/SidebarContext";
@@ -76,6 +76,7 @@ export default function StudentSidebar() {
         { href: "/student/leaves", label: "Leave/Out Pass", icon: FaSuitcase },
         { href: "/student/attendance", label: "Attendance", icon: FaCalendarAlt },
         { href: "/student/fees", label: "Fees & Payments", icon: FaMoneyBillWave },
+        { href: "/student/messages", label: "Messages", icon: FaComments },
         { href: "/student/complaints", label: "Complaints", icon: FaClipboardList },
     ];
 
@@ -119,9 +120,9 @@ export default function StudentSidebar() {
                 transition={{ duration: 0.15, ease: "easeInOut" }}
                 className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-screen flex flex-col fixed left-0 top-0 z-50 shadow-xl ${isMobile ? 'w-[280px]' : ''}`}
             >
-                <div className={`p-4 flex items-center ${isCollapsed && !isMobile ? 'justify-center' : 'justify-between'}`}>
+                <div className={`flex items-center ${isCollapsed && !isMobile ? 'justify-center p-2' : 'justify-between p-4'}`}>
                     <div className={`flex items-center gap-3 ${isCollapsed && !isMobile ? 'justify-center' : ''}`}>
-                        <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                        <div className="w-10 h-10 min-w-10 rounded-full bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
                             {profileImage ? (
                                 <img src={profileImage} alt="User" className="w-full h-full rounded-full object-cover" />
                             ) : (
@@ -250,7 +251,7 @@ export default function StudentSidebar() {
                     })}
                 </nav>
 
-                <div className="p-4 bg-slate-50/50 dark:bg-slate-900/50 space-y-2 mt-auto border-t border-slate-100 dark:border-slate-800">
+                <div className={`bg-slate-50/50 dark:bg-slate-900/50 space-y-2 mt-auto border-t border-slate-100 dark:border-slate-800 ${isCollapsed && !isMobile ? 'p-2' : 'p-4'}`}>
                     <button
                         onClick={() => setShowSidebarPanel(true)}
                         className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative w-full text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white ${isCollapsed && !isMobile ? 'justify-center px-0 mx-2' : 'gap-3'}`}
@@ -259,7 +260,8 @@ export default function StudentSidebar() {
                         <div className={`relative z-10 flex items-center justify-center ${isCollapsed && !isMobile ? '' : 'w-5'}`}>
                             <FaBell className="text-lg transition-transform group-hover:scale-105 text-slate-400 group-hover:text-violet-500" />
                             {unreadCount > 0 && (
-                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
+                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 
+                                rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
                             )}
                         </div>
                         {(!isCollapsed || isMobile) && (
@@ -291,10 +293,12 @@ export default function StudentSidebar() {
 
                     <button
                         onClick={() => signOut({ callbackUrl: "/login" })}
-                        className={`flex items-center gap-3 w-full px-4 py-3 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 text-left hover:text-rose-600 dark:hover:text-rose-300 rounded-xl transition-colors font-medium ${isCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
+                        className={`flex items-center px-3 py-2.5 mx-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 text-left hover:text-rose-600 dark:hover:text-rose-300 rounded-lg transition-colors font-medium ${isCollapsed && !isMobile ? 'justify-center px-0 mx-2' : 'gap-3'}`}
                         title="Sign Out"
                     >
-                        <FaSignOutAlt className="text-xl" />
+                        <div className={`relative z-10 flex items-center justify-center ${isCollapsed && !isMobile ? '' : 'w-5'}`}>
+                            <FaSignOutAlt className="text-lg" />
+                        </div>
                         {(!isCollapsed || isMobile) && <span>Sign Out</span>}
                     </button>
                 </div>

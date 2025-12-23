@@ -41,7 +41,7 @@ export default function NotificationPanel({ isOpen, onClose, notifications, onMa
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60]"
+                        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-60"
                     />
 
                     {/* Panel */}
@@ -50,7 +50,7 @@ export default function NotificationPanel({ isOpen, onClose, notifications, onMa
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
                         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white dark:bg-slate-900 shadow-2xl z-[70] flex flex-col border-l border-slate-200 dark:border-slate-800"
+                        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white dark:bg-slate-900 shadow-2xl z-70 flex flex-col border-l border-slate-200 dark:border-slate-800"
                     >
                         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
                             <div className="flex items-center gap-2">

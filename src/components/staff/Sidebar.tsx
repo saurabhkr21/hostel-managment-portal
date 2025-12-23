@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaUsers, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaUserCircle, FaBed, FaCog, FaComments, FaSuitcase, FaClipboardList, FaBars } from "react-icons/fa";
+import { FaHome, FaUsers, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaUserCircle, FaBed, FaCog, FaComments, FaSuitcase, FaClipboardList, FaBars, FaBullhorn } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
 import { useSidebar } from "@/components/providers/SidebarContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,7 +34,7 @@ export default function StaffSidebar() {
         { href: "/staff/leaves", label: "Leaves", icon: FaSuitcase },
         { href: "/staff/attendance", label: "Attendance", icon: FaCalendarAlt },
         { href: "/staff/complaints", label: "Complaints", icon: FaClipboardList },
-        { href: "/staff/messages", label: "Messages", icon: FaComments },
+        { href: "/staff/notifications", label: "Notifications", icon: FaBullhorn },
         { href: "/staff/settings", label: "Settings", icon: FaCog },
     ];
 
@@ -79,7 +79,7 @@ export default function StaffSidebar() {
                 {/* User Profile Header */}
                 <div className={`p-6 flex items-center ${isCollapsed && !isMobile ? 'justify-center' : 'justify-between'}`}>
                     <div className={`flex items-center gap-3 ${isCollapsed && !isMobile ? 'justify-center' : ''}`}>
-                        <div className="w-10 h-10 min-w-[2.5rem] rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-300 flex items-center justify-center font-bold text-lg overflow-hidden border border-violet-200 dark:border-violet-800">
+                        <div className="w-10 h-10 min-w-10 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-300 flex items-center justify-center font-bold text-lg overflow-hidden border border-violet-200 dark:border-violet-800">
                             {profileImage ? (
                                 <img src={profileImage} alt="User" className="w-full h-full object-cover" />
                             ) : (

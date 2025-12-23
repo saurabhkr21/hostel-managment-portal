@@ -88,11 +88,11 @@ export default function AdminSidebar() {
                     <div className="absolute bottom-[-10%] right-[-20%] w-64 h-64 bg-indigo-600 rounded-full blur-3xl"></div>
                 </div>
 
-                <div className="p-4 z-10 flex flex-col h-full">
+                <div className={`flex flex-col h-full z-10 ${isCollapsed && !isMobile ? 'p-2' : 'p-4'}`}>
                     {/* User Profile Header */}
                     <div className={`flex items-center ${isCollapsed && !isMobile ? 'justify-center' : 'justify-between'} mb-6 px-2`}>
                         <div className={`flex items-center gap-3 ${isCollapsed && !isMobile ? 'justify-center w-full' : ''}`}>
-                            <div className="w-10 h-10 min-w-[2.5rem] rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold shadow-md">
+                            <div className="w-10 h-10 min-w-10 rounded-full bg-linear-to-tr from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold shadow-md">
                                 {profileImage ? (
                                     <img src={profileImage} alt="User" className="w-full h-full rounded-full object-cover" />
                                 ) : (
@@ -136,7 +136,7 @@ export default function AdminSidebar() {
                         </div>
                     )}
 
-                    <nav className="space-y-2 flex-1 px-2 mt-4 overflow-y-auto custom-scrollbar">
+                    <nav className={`space-y-2 flex-1 mt-4 overflow-y-auto custom-scrollbar ${isCollapsed && !isMobile ? 'px-0' : 'px-2'}`}>
                         {links.map((link) => {
                             const Icon = link.icon;
                             const isActive = pathname === link.href;
@@ -147,7 +147,7 @@ export default function AdminSidebar() {
                                     className={`flex items-center px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 group relative ${isActive
                                         ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
                                         : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
-                                        } ${isCollapsed && !isMobile ? 'justify-center px-0 mx-2' : 'gap-3'}`}
+                                        } ${isCollapsed && !isMobile ? 'justify-center px-0 mx-0' : 'gap-3'}`}
                                     title={isCollapsed && !isMobile ? link.label : ""}
                                     onClick={() => isMobile && setSidebarState(true)}
                                 >
@@ -167,7 +167,7 @@ export default function AdminSidebar() {
                     </nav>
 
                     {/* Footer Actions - Fixed at Bottom */}
-                    <div className="w-full px-2 pb-6 pt-4 space-y-2 bg-white/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 mt-auto backdrop-blur-sm">
+                    <div className={`w-full pb-6 pt-4 space-y-2  dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 mt-auto backdrop-blur-sm ${isCollapsed && !isMobile ? 'px-1' : 'px-2'}`}>
                         <button
                             onClick={() => signOut()}
                             className={`flex items-center gap-3 px-4 py-3 w-full text-left text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-300 rounded-xl transition-all duration-300 group ${isCollapsed && !isMobile ? 'justify-center px-0' : ''}`}

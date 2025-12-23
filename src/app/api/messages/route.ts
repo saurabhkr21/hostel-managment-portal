@@ -9,64 +9,139 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const targetId = searchParams.get("targetId");
+    const type = searchParams.get("type"); // "primary" | "requests"
+    const search = searchParams.get("search");
 
     try {
-        if (session.user.role === "STUDENT") {
-            // Students fetch messages with specific staff/admin or their main thread
-            // If targetId is provided, fetch specific thread. Else, fetch all their messages (simplified for single thread view)
-
-            const messages = await prisma.message.findMany({
+        if (search) {
+            // Search globally for students to message
+            const users = await prisma.user.findMany({
                 where: {
-                    OR: [
-                        { senderId: session.user.id },
-                        { receiverId: session.user.id }
-                    ]
+                    role: "STUDENT",
+                    id: { not: session.user.id },
+                    name: { contains: search, mode: "insensitive" }
                 },
-                orderBy: { createdAt: "asc" },
-                include: {
-                    sender: { select: { name: true, role: true } },
-                    receiver: { select: { name: true, role: true } }
+                take: 10,
+                select: {
+                    id: true,
+                    name: true,
+                    role: true,
+                    profile: {
+                        select: { profileImage: true }
+                    }
                 }
             });
-            return NextResponse.json(messages);
-        } else {
-            // Staff/Admin fetching messages
-            if (targetId) {
-                // Fetch specific conversation
-                const messages = await prisma.message.findMany({
+
+            // Map to standard format - check for existing conversation ID if possible? 
+            // For now, simpler to just return users. Front-end will treat as "user to message"
+            // We can fetch conversation status on selection if needed, or better:
+            // Check if we have a conversation with them to set "conversationId"
+
+            const results = await Promise.all(users.map(async (u) => {
+                const existingConv = await prisma.conversation.findFirst({
                     where: {
-                        OR: [
-                            { senderId: session.user.id, receiverId: targetId },
-                            { senderId: targetId, receiverId: session.user.id }
-                        ]
+                        participantIds: { hasEvery: [session.user.id, u.id] }
                     },
-                    orderBy: { createdAt: "asc" },
-                    include: {
-                        sender: { select: { name: true, role: true } },
-                        receiver: { select: { name: true, role: true } }
-                    }
+                    select: { id: true, status: true, initiatorId: true }
                 });
-                return NextResponse.json(messages);
-            } else {
-                // List ALL students to allow starting new conversations
-                // fetching all students
-                const students = await prisma.user.findMany({
-                    where: { role: "STUDENT" },
-                    select: {
-                        id: true,
-                        name: true,
-                        role: true,
-                        // profileImage is excluded, use /api/users/[id]/avatar
+
+                return {
+                    id: u.id,
+                    name: u.name,
+                    role: u.role,
+                    conversationId: existingConv?.id || "",
+                    status: existingConv?.status || "PENDING",
+                    // If no conversation, status "PENDING" is effectively "New Request" when created
+                    // But effectively checking if we have valid chat
+                    lastMessage: existingConv ? "Resume chat" : "Start a new conversation"
+                };
+            }));
+
+            return NextResponse.json(results);
+
+        } else if (targetId) {
+            // Get specific conversation messages
+            const conversation = await prisma.conversation.findFirst({
+                where: {
+                    participantIds: {
+                        hasEvery: [session.user.id, targetId]
+                    }
+                },
+                include: {
+                    messages: {
+                        orderBy: { createdAt: "asc" }
+                    }
+                }
+            });
+
+            if (!conversation) return NextResponse.json([]);
+
+            return NextResponse.json(conversation.messages);
+
+        } else {
+            // Get List of threads/users
+            // Filter by type:
+            // "primary": status ACCEPTED OR (status PENDING AND initiatorId == ME)
+            // "requests": status PENDING AND initiatorId != ME
+
+            const statusFilter = type === "requests"
+                ? {
+                    status: "PENDING",
+                    initiatorId: { not: session.user.id }
+                }
+                : {
+                    OR: [
+                        { status: "ACCEPTED" },
+                        {
+                            status: "PENDING",
+                            initiatorId: session.user.id
+                        }
+                    ]
+                };
+
+            const conversations = await prisma.conversation.findMany({
+                where: {
+                    participantIds: { has: session.user.id },
+                    ...statusFilter as any
+                },
+                include: {
+                    participants: {
+                        select: {
+                            id: true,
+                            name: true,
+                            role: true,
+                            profile: {
+                                select: { profileImage: true }
+                            }
+                        }
                     },
-                    orderBy: {
-                        name: "asc"
+                    messages: {
+                        orderBy: { createdAt: "desc" },
+                        take: 1
                     }
-                });
-                return NextResponse.json(students);
-            }
+                },
+                orderBy: { updatedAt: "desc" }
+            });
+
+            // Map to UserSummary format
+            const threads = conversations.map(conv => {
+                const otherUser = conv.participants.find(p => p.id !== session.user.id);
+                return {
+                    id: otherUser?.id,
+                    name: otherUser?.name,
+                    role: otherUser?.role,
+                    profileImage: (otherUser as any)?.profile?.profileImage,
+                    lastMessage: conv.messages[0]?.content,
+                    conversationId: conv.id,
+                    status: conv.status,
+                    initiatorId: conv.initiatorId
+                };
+            }).filter(t => t.id); // Filter out self if something weird happens
+
+            return NextResponse.json(threads);
         }
     } catch (error) {
-        console.error("Error fetching messages:", error);
+        console.error("Messages GET Error:", error);
         return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500 });
     }
 }
@@ -79,28 +154,54 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { content, receiverId } = body;
 
-        let finalReceiverId = receiverId;
-
-        // If Student sends execution without receiverId, find a default Staff/Admin
-        if (session.user.role === "STUDENT" && !finalReceiverId) {
-            const staff = await prisma.user.findFirst({
-                where: { role: { in: ["ADMIN", "STAFF"] } }
-            });
-            if (staff) finalReceiverId = staff.id;
-            else return NextResponse.json({ error: "No staff available to receive message" }, { status: 404 });
+        if (!content || !receiverId) {
+            return NextResponse.json({ error: "Missing content or receiver" }, { status: 400 });
         }
 
+        // 1. Check if conversation exists
+        let conversation = await prisma.conversation.findFirst({
+            where: {
+                participantIds: {
+                    hasEvery: [session.user.id, receiverId]
+                }
+            }
+        });
+
+        // 2. If no conversation, create one (PENDING)
+        if (!conversation) {
+            conversation = await prisma.conversation.create({
+                data: {
+                    participantIds: [session.user.id, receiverId],
+                    initiatorId: session.user.id,
+                    status: "PENDING"
+                }
+            });
+
+            // Connect users to conversation (for relations update)
+            await prisma.user.update({ where: { id: session.user.id }, data: { conversations: { connect: { id: conversation.id } } } });
+            await prisma.user.update({ where: { id: receiverId }, data: { conversations: { connect: { id: conversation.id } } } });
+        }
+
+        // 3. Create Message
         const message = await prisma.message.create({
             data: {
                 content,
                 senderId: session.user.id,
-                receiverId: finalReceiverId
+                receiverId: receiverId,
+                conversationId: conversation.id
             }
         });
 
+        // 4. Update Conversation timestamp
+        await prisma.conversation.update({
+            where: { id: conversation.id },
+            data: { updatedAt: new Date() }
+        });
+
         return NextResponse.json(message);
+
     } catch (error) {
-        console.error("Error sending message:", error);
+        console.error("Messages POST Error:", error);
         return NextResponse.json({ error: "Failed to send message" }, { status: 500 });
     }
 }
