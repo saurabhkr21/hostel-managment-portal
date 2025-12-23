@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FaPaperPlane, FaBroadcastTower, FaUsers, FaUser, FaInfoCircle, FaExclamationTriangle, FaBullhorn, FaPaperclip } from "react-icons/fa";
+import { FaPaperPlane, FaBroadcastTower, FaUsers, FaUser, FaInfoCircle, FaExclamationTriangle, FaBullhorn, FaPaperclip, FaSearch } from "react-icons/fa";
+import StudentSelectorModal from "@/components/admin/StudentSelectorModal";
 import { motion } from "framer-motion";
 
 export default function AdminNotifications() {
@@ -16,6 +17,7 @@ export default function AdminNotifications() {
 
     const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Add file input ref
     const fileInputRef = useState<HTMLInputElement | null>(null);
@@ -132,13 +134,31 @@ export default function AdminNotifications() {
                             {targetType === "individual" && (
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Recipient Student ID / Email</label>
-                                    <input
-                                        type="text"
-                                        value={recipientId}
-                                        onChange={(e) => setRecipientId(e.target.value)}
-                                        placeholder="Enter student email or ID..."
-                                        className="w-full px-4 py-3 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
-                                        required
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={recipientId}
+                                            onChange={(e) => setRecipientId(e.target.value)}
+                                            placeholder="Enter student email or ID..."
+                                            className="flex-1 px-4 py-3 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsModalOpen(true)}
+                                            className="px-4 rounded-xl bg-violet-600 text-white hover:bg-violet-700 transition-colors shadow-lg shadow-violet-500/20"
+                                            title="Search Student"
+                                        >
+                                            <FaSearch />
+                                        </button>
+                                    </div>
+                                    <StudentSelectorModal
+                                        isOpen={isModalOpen}
+                                        onClose={() => setIsModalOpen(false)}
+                                        onSelect={(email) => {
+                                            setRecipientId(email);
+                                            setIsModalOpen(false);
+                                        }}
                                     />
                                 </div>
                             )}

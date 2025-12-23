@@ -4,8 +4,16 @@ import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { FaUser, FaLock, FaRedo } from "react-icons/fa";
-import Image from "next/image";
+import { FaUser, FaLock, FaRedo, FaEye, FaEyeSlash, FaHotel, FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
+
+// Curated list of high-quality nature wallpapers
+const BACKGROUND_IMAGES = [
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2070&auto=format&fit=crop", // Nature/Valley
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1948&auto=format&fit=crop", // Foggy Mountains
+    "https://images.unsplash.com/photo-1433086966358-54859d0ed716?q=80&w=1920&auto=format&fit=crop", // Waterfall
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop", // Yosemite
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2074&auto=format&fit=crop"  // Forest
+];
 
 export default function LoginPage() {
     const router = useRouter();
@@ -15,13 +23,19 @@ export default function LoginPage() {
     const [generatedCaptcha, setGeneratedCaptcha] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [bgImage, setBgImage] = useState(BACKGROUND_IMAGES[0]);
 
     useEffect(() => {
         generateCaptcha();
+        // Select daily image
+        const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
+        const imageIndex = dayOfYear % BACKGROUND_IMAGES.length;
+        setBgImage(BACKGROUND_IMAGES[imageIndex]);
     }, []);
 
     const generateCaptcha = () => {
-        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed confusing chars like I, 1, O, 0
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         let result = "";
         for (let i = 0; i < 6; i++) {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -51,7 +65,7 @@ export default function LoginPage() {
 
             if (result?.error) {
                 setError("Invalid email or password");
-                generateCaptcha(); // Refresh captcha on failure
+                generateCaptcha();
                 setCaptcha("");
             } else {
                 router.push("/");
@@ -65,141 +79,156 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-black relative overflow-hidden">
-            {/* Background Elements */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-                <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-                <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="min-h-screen relative flex items-center justify-center p-4">
+            {/* Background Image with Overlay */}
+            <div className="fixed inset-0 z-0">
+                <div
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 transform scale-105"
+                    style={{ backgroundImage: `url(${bgImage})` }}
+                />
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 w-full max-w-md z-10 border border-white/20"
-            >
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-white mb-2">Welcome Back</h1>
-                    <p className="text-gray-300">Sign in to access your account</p>
-                </div>
+            <div className="w-full max-w-7xl mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
 
-                {error && (
+                {/* Left Side: Welcome Text */}
+                <motion.div
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="text-white space-y-6 text-center md:text-left hidden md:block" // Hidden on mobile to avoid duplication/clutter if we move content
+                >
+                    <div className="inline-flex items-center gap-3 text-white/90 mb-2 justify-center md:justify-start">
+                        <FaHotel className="text-3xl" />
+                        <span className="text-xl font-bold tracking-wider uppercase">Hostel Portal</span>
+                    </div>
+                    <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+                        Welcome <br className="hidden md:block" /> Back
+                    </h1>
+                    {/* Description and Icons moved to Right Side */}
+                </motion.div>
+
+                {/* Right Side: Login Form */}
+                <div className="flex justify-center md:justify-end w-full">
                     <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="bg-red-500/20 border border-red-500 text-red-100 px-4 py-2 rounded-lg mb-6 text-sm text-center"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="w-full max-w-md bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-2xl"
                     >
-                        {error}
-                    </motion.div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Email Address
-                        </label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <FaUser className="text-gray-400" />
+                        {/* Mobile Logo/Header to ensure branding is visible on mobile since left column is hidden on mobile now or just minimal */}
+                        <div className="md:hidden text-center mb-6 space-y-2">
+                            <div className="inline-flex items-center gap-2 text-white/90">
+                                <FaHotel className="text-2xl" />
+                                <span className="text-lg font-bold tracking-wider uppercase">Hostel Portal</span>
                             </div>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                className="block w-full pl-10 pr-3 py-3 bg-white/5 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all hover:bg-white/10"
-                                placeholder="name@example.com"
-                            />
+                            <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
                         </div>
-                    </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Password
-                        </label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <FaLock className="text-gray-400" />
-                            </div>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                className="block w-full pl-10 pr-3 py-3 bg-white/5 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all hover:bg-white/10"
-                                placeholder="••••••••"
-                            />
+                        <div className="text-center md:text-left mb-6 hidden md:block">
+                            <h2 className="text-2xl md:text-3xl font-bold text-white">Sign In</h2>
+                            <p className="text-white/60 text-sm mt-1">Enter your details to continue</p>
                         </div>
-                    </div>
 
-                    {/* Captcha Section */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Verification Code
-                        </label>
-                        <div className="flex gap-3 mb-3">
-                            <div className="flex-1 bg-white/10 border border-gray-600 rounded-lg flex items-center justify-center py-3 select-none backdrop-blur-sm"
-                                style={{
-                                    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)'
-                                }}>
-                                <span className="text-2xl font-mono font-bold tracking-[0.5em] text-purple-200" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-                                    {generatedCaptcha}
-                                </span>
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            {error && (
+                                <div className="bg-red-500/20 border-l-4 border-red-500 p-3 rounded text-white text-sm backdrop-blur-md">
+                                    <p className="font-bold">Error: {error}</p>
+                                </div>
+                            )}
+
+                            <div className="space-y-1.5">
+                                <label className="text-white/90 text-sm font-medium ml-1">Email Address</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="name@example.com"
+                                    required
+                                    className="w-full px-4 py-3 rounded-lg bg-white/90 focus:bg-white text-slate-900 placeholder-slate-500 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-lg"
+                                />
                             </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-white/90 text-sm font-medium ml-1">Password</label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Enter password"
+                                        required
+                                        className="w-full px-4 py-3 rounded-lg bg-white/90 focus:bg-white text-slate-900 placeholder-slate-500 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-lg"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 p-1"
+                                    >
+                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Captcha */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-between px-3 border border-white/10 h-12">
+                                    <span className="font-mono font-bold text-white tracking-widest text-lg">{generatedCaptcha}</span>
+                                    <button type="button" onClick={generateCaptcha} className="text-white/70 hover:text-white p-1">
+                                        <FaRedo size={14} />
+                                    </button>
+                                </div>
+                                <input
+                                    type="text"
+                                    value={captcha}
+                                    onChange={(e) => setCaptcha(e.target.value)}
+                                    placeholder="CODE"
+                                    required
+                                    className="h-12 w-full px-4 rounded-lg bg-white/90 focus:bg-white text-slate-900 placeholder-slate-500 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-lg text-center"
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between text-sm">
+                                <label className="flex items-center gap-2 text-white/90 cursor-pointer">
+                                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500" />
+                                    Remember Me
+                                </label>
+                                <a href="#" className="text-white/90 hover:text-white hover:underline">
+                                    Lost Password?
+                                </a>
+                            </div>
+
                             <button
-                                type="button"
-                                onClick={generateCaptcha}
-                                className="px-4 bg-white/10 hover:bg-white/20 border border-gray-600 rounded-lg text-gray-300 hover:text-white transition-colors"
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg shadow-lg hover:shadow-orange-500/30 transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                             >
-                                <FaRedo />
+                                {loading ? "Signing in..." : "Sign in now"}
                             </button>
-                        </div>
-                        <input
-                            type="text"
-                            value={captcha}
-                            onChange={(e) => setCaptcha(e.target.value)}
-                            required
-                            className="block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all hover:bg-white/10 text-center tracking-widest font-mono uppercase"
-                            placeholder="ENTER CODE"
-                        />
-                    </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-900/50 transform transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
-                    >
-                        {loading ? (
-                            <span className="flex items-center justify-center">
-                                <svg
-                                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                        className="opacity-25"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        strokeWidth="4"
-                                    ></circle>
-                                    <path
-                                        className="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    ></path>
-                                </svg>
-                                Verifying...
-                            </span>
-                        ) : (
-                            "Sign In"
-                        )}
-                    </button>
-                </form>
-            </motion.div>
+                            {/* Footer Content: Description & Socials */}
+                            <div className="text-center pt-6 border-t border-white/10 mt-6">
+                                <p className="text-white/80 text-sm leading-relaxed mb-4">
+                                    Sign in to access your dashboard, manage hostel activities, and stay connected.
+                                </p>
+                                <div className="flex gap-4 justify-center">
+                                    {[FaFacebook, FaTwitter, FaInstagram, FaYoutube].map((Icon, i) => (
+                                        <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10">
+                                            <Icon className="text-white" />
+                                        </a>
+                                    ))}
+                                </div>
+
+                                <div className="text-xs text-white/50 mt-6 space-x-2">
+                                    <a href="#" className="hover:text-white transition-colors">Terms</a>
+                                    <span>•</span>
+                                    <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                                </div>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            </div>
         </div>
     );
 }

@@ -23,6 +23,29 @@ export async function GET(req: Request) {
             where.role = roleParam as Role;
         }
 
+        const search = searchParams.get("search");
+        if (search) {
+            where.OR = [
+                { name: { contains: search, mode: "insensitive" } },
+                { email: { contains: search, mode: "insensitive" } },
+                {
+                    profile: {
+                        is: {
+                            OR: [
+                                { rollNo: { contains: search, mode: "insensitive" } },
+                                { enrollNo: { contains: search, mode: "insensitive" } }
+                            ]
+                        }
+                    }
+                },
+                {
+                    room: {
+                        roomNumber: { contains: search, mode: "insensitive" }
+                    }
+                }
+            ];
+        }
+
         const users = await prisma.user.findMany({
             where,
             select: {
@@ -32,13 +55,18 @@ export async function GET(req: Request) {
                 role: true,
                 createdAt: true,
                 roomId: true,
-                profile: true,
+                profile: {
+                    select: {
+                        rollNo: true
+                    }
+                },
                 room: {
                     select: {
                         roomNumber: true
                     }
                 }
             },
+            take: 20,
             orderBy: {
                 createdAt: "desc",
             },
