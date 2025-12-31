@@ -153,10 +153,10 @@ export default function StudentFeesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-8 px-4 md:p-8 transition-colors duration-300">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:mt-0">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -428,7 +428,7 @@ function StatCard({ title, value, icon: Icon, gradient, shadowColor, iconBg, ico
             whileHover={{ y: -4 }}
             className={`bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-700 relative overflow-hidden group`}
         >
-            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradient} opacity-[0.03] rounded-bl-[3rem] group-hover:scale-110 transition-transform duration-500`}></div>
+            <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${gradient} opacity-[0.03] rounded-bl-[3rem] group-hover:scale-110 transition-transform duration-500`}></div>
 
             <div className="flex items-center justify-between relative z-10">
                 <div>

@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaUser, FaGraduationCap, FaHome, FaAward, FaChalkboardTeacher, FaExclamationCircle, FaChartLine, FaPhone, FaEnvelope } from "react-icons/fa";
+import { FaUser, FaGraduationCap, FaHome, FaAward, FaChalkboardTeacher, FaExclamationCircle, FaChartLine, FaPhone, FaEnvelope, FaCalendarAlt, FaUniversity, FaLaptopCode, FaLayerGroup, FaIdCard, FaSchool, FaBook, FaUserGraduate, FaUserShield, FaMapMarkerAlt, FaTint, FaDoorOpen } from "react-icons/fa";
 import dynamic from "next/dynamic";
 import useSWR from "swr";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,9 +50,59 @@ interface StudentInfo {
 export default function StudentDashboard() {
     const { data: session } = useSession();
     const [activeTab, setActiveTab] = useState("program");
+    const [stats, setStats] = useState({ present: 0, absent: 0, leave: 0, total: 0 });
+    const [chartData, setChartData] = useState<any[]>([]);
+
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentYear = new Date().getFullYear();
+    const years = [currentYear - 1, currentYear, currentYear + 1];
 
     const fetcher = (url: string) => fetch(url).then((res) => res.json());
-    const { data: info, error, isLoading } = useSWR<StudentInfo>("/api/student/info", fetcher);
+    const { data: info, error: infoError, isLoading } = useSWR<StudentInfo>("/api/student/info", fetcher);
+    const { data: attendanceData } = useSWR("/api/attendance", fetcher);
+
+    useEffect(() => {
+        if (attendanceData) {
+            const newStats = attendanceData.reduce(
+                (acc: any, curr: any) => {
+                    acc.total++;
+                    if (curr.status === "PRESENT") acc.present++;
+                    else if (curr.status === "ABSENT") acc.absent++;
+                    else if (curr.status === "LEAVE") acc.leave++;
+                    return acc;
+                },
+                { present: 0, absent: 0, leave: 0, total: 0 }
+            );
+            setStats(newStats);
+
+            const weeks: { [key: string]: { present: number, total: number } } = {};
+            attendanceData.forEach((record: any) => {
+                const date = new Date(record.date);
+                const weekNum = Math.ceil(date.getDate() / 7);
+                const week = `Week ${weekNum}`;
+                if (!weeks[week]) weeks[week] = { present: 0, total: 0 };
+                weeks[week].total++;
+                if (record.status === "PRESENT") weeks[week].present++;
+            });
+
+            const newChartData = Object.keys(weeks).sort().map(w => ({
+                name: w,
+                value: Math.round((weeks[w].present / weeks[w].total) * 100)
+            }));
+            setChartData(newChartData.length > 0 ? newChartData : [
+                { name: 'Week 1', value: 0 },
+                { name: 'Week 2', value: 0 },
+                { name: 'Week 3', value: 0 },
+                { name: 'Week 4', value: 0 },
+            ]);
+        }
+    }, [attendanceData]);
+
+    const presentPercent = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+    const absentPercent = stats.total > 0 ? Math.round((stats.absent / stats.total) * 100) : 0;
+    const leavePercent = stats.total > 0 ? Math.round((stats.leave / stats.total) * 100) : 0;
 
     const tabs = [
         { id: "program", label: "Program & Education", icon: FaGraduationCap },
@@ -92,13 +142,13 @@ export default function StudentDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-3 md:p-8 font-sans transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-8 px-4 md:p-8 font-sans transition-colors duration-300">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header Section */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-12 md:mt-0"
+                    className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:mt-0"
                 >
                     <div>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">
@@ -170,22 +220,34 @@ export default function StudentDashboard() {
                             {/* Essential Details Grid */}
                             <div className="p-6 space-y-4">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Joined Date</span>
-                                    <span className="text-slate-700 dark:text-slate-200 font-semibold">{new Date(info.createdAt).toLocaleDateString()}</span>
+                                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                        <FaCalendarAlt size={14} className="opacity-70" />
+                                        <span className="font-medium">Joined Date</span>
+                                    </div>
+                                    <span className="text-slate-700 dark:text-slate-200 font-bold">{new Date(info.createdAt).toLocaleDateString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Student ID</span>
-                                    <span className="text-slate-700 dark:text-slate-200 font-semibold">{info.profile.enrollNo || "N/A"}</span>
+                                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                        <FaIdCard size={14} className="opacity-70" />
+                                        <span className="font-medium">Student ID</span>
+                                    </div>
+                                    <span className="text-slate-700 dark:text-slate-200 font-bold">{info.profile.enrollNo || "N/A"}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Room No</span>
-                                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-xs font-bold">
+                                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                        <FaDoorOpen size={14} className="opacity-70" />
+                                        <span className="font-medium">Room No</span>
+                                    </div>
+                                    <span className="px-3 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-black ring-1 ring-green-200 dark:ring-green-900/50">
                                         {info.room?.roomNumber || "Unassigned"}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-slate-500 dark:text-slate-400 font-medium">Blood Group</span>
-                                    <span className="text-rose-600 dark:text-rose-400 font-bold">{info.profile.bloodGroup || "N/A"}</span>
+                                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                        <FaTint size={14} className="text-rose-500 opacity-70" />
+                                        <span className="font-medium">Blood Group</span>
+                                    </div>
+                                    <span className="text-rose-600 dark:text-rose-400 font-black">{info.profile.bloodGroup || "N/A"}</span>
                                 </div>
                             </div>
                         </motion.div>
@@ -194,20 +256,20 @@ export default function StudentDashboard() {
                     {/* Right Column: Content Tabs (8 cols) */}
                     <div className="lg:col-span-8 space-y-6">
                         {/* Custom Tab Navigation */}
-                        <div className="bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-wrap gap-3">
+                        <div className="bg-white dark:bg-slate-800 p-1.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center w-full overflow-hidden">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`
-                                        flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-300
+                                        flex-1 flex items-center justify-center gap-2 py-2.5 md:py-3.5 px-2 md:px-4 rounded-xl text-[10px] md:text-sm font-black transition-all duration-500 relative overflow-hidden group/tab
                                         ${activeTab === tab.id
                                             ? "bg-violet-600 text-white shadow-lg shadow-violet-200 dark:shadow-none"
-                                            : "bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200 border border-transparent hover:border-slate-200 dark:hover:border-slate-600"}
+                                            : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50"}
                                     `}
                                 >
-                                    <tab.icon className={activeTab === tab.id ? "text-white" : "text-slate-500 dark:text-slate-400"} />
-                                    <span className="whitespace-nowrap">{tab.label}</span>
+                                    <tab.icon className={`text-sm md:text-lg transition-transform duration-300 group-hover/tab:scale-110 ${activeTab === tab.id ? "text-white" : "text-slate-400"}`} />
+                                    <span className="whitespace-nowrap uppercase tracking-tighter md:tracking-normal">{tab.label.split(' ')[0]}</span>
                                 </button>
                             ))}
                         </div>
@@ -233,18 +295,24 @@ export default function StudentDashboard() {
                                                 <h3 className="text-xl font-bold text-slate-800 dark:text-white">Academic Information</h3>
                                             </div>
 
+
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 {[
-                                                    { label: "University", value: info.profile.college || "Quantum University" },
-                                                    { label: "Course", value: info.profile.course },
-                                                    { label: "Branch", value: info.profile.branch },
-                                                    { label: "Current Year/Sem", value: info.profile.yearSem },
-                                                    { label: "Section", value: info.profile.section },
-                                                    { label: "Student Type", value: info.profile.studentType || "Regular" },
+                                                    { label: "University", value: info.profile.college || "Quantum University", icon: FaUniversity, color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20" },
+                                                    { label: "Course", value: info.profile.course, icon: FaGraduationCap, color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20" },
+                                                    { label: "Branch", value: info.profile.branch, icon: FaLaptopCode, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" },
+                                                    { label: "Current Year/Sem", value: info.profile.yearSem, icon: FaCalendarAlt, color: "text-orange-600 bg-orange-50 dark:bg-orange-900/20" },
+                                                    { label: "Section", value: info.profile.section, icon: FaLayerGroup, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" },
+                                                    { label: "Student Type", value: info.profile.studentType || "Regular", icon: FaIdCard, color: "text-rose-600 bg-rose-50 dark:bg-rose-900/20" },
                                                 ].map((item, idx) => (
-                                                    <div key={idx} className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600 hover:border-violet-200 dark:hover:border-violet-700 transition-colors">
-                                                        <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{item.label}</span>
-                                                        <span className="text-slate-800 dark:text-slate-200 font-medium text-lg">{item.value || "N/A"}</span>
+                                                    <div key={idx} className="bg-white dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-4 group hover:ring-2 hover:ring-violet-500/20 transition-all duration-300">
+                                                        <div className={`p-3 rounded-xl ${item.color} shrink-0 transition-transform group-hover:scale-110 duration-300`}>
+                                                            <item.icon size={20} />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5">{item.label}</span>
+                                                            <span className="text-slate-800 dark:text-slate-200 font-bold text-base md:text-lg truncate block leading-tight">{item.value || "N/A"}</span>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -262,13 +330,16 @@ export default function StudentDashboard() {
 
                                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                                 {[
-                                                    { label: "High School", value: info.profile.highSchoolPercentage, suffix: "%", color: "border-l-4 border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/10 dark:border-emerald-600" },
-                                                    { label: "Intermediate", value: info.profile.intermediatePercentage, suffix: "%", color: "border-l-4 border-blue-400 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-600" },
-                                                    { label: "Graduation", value: info.profile.graduationPercentage, suffix: " CGPA", color: "border-l-4 border-violet-400 bg-violet-50/50 dark:bg-violet-900/10 dark:border-violet-600" },
+                                                    { label: "High School", value: info.profile.highSchoolPercentage, suffix: "%", icon: FaSchool, color: "border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400" },
+                                                    { label: "Intermediate", value: info.profile.intermediatePercentage, suffix: "%", icon: FaBook, color: "border-blue-400 bg-blue-50/50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400" },
+                                                    { label: "Graduation", value: info.profile.graduationPercentage, suffix: " CGPA", icon: FaUserGraduate, color: "border-violet-400 bg-violet-50/50 dark:bg-violet-900/10 text-violet-600 dark:text-violet-400" },
                                                 ].map((edu, idx) => (
-                                                    <div key={idx} className={`p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 transition-transform hover:scale-105 duration-300 ${edu.color}`}>
-                                                        <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{edu.label}</span>
-                                                        <span className="text-3xl font-extrabold text-slate-800 dark:text-white">
+                                                    <div key={idx} className={`p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 transition-all hover:scale-105 duration-300 border-l-4 group flex flex-col gap-3 ${edu.color}`}>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{edu.label}</span>
+                                                            <edu.icon className="opacity-40 group-hover:scale-110 transition-transform" />
+                                                        </div>
+                                                        <span className="text-3xl font-extrabold text-slate-800 dark:text-white leading-none">
                                                             {edu.value ? `${edu.value}${edu.suffix}` : "N/A"}
                                                         </span>
                                                     </div>
@@ -294,8 +365,14 @@ export default function StudentDashboard() {
                                                     </div>
                                                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Permanent Address</h3>
                                                 </div>
-                                                <div className="bg-slate-50 dark:bg-slate-700/50 p-6 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                                                    {info.profile.address || "No address details available."}
+
+                                                <div className="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex gap-4 ring-1 ring-slate-100 dark:ring-slate-700">
+                                                    <div className="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-xl h-fit">
+                                                        <FaMapMarkerAlt className="text-rose-500 dark:text-rose-400" size={20} />
+                                                    </div>
+                                                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-medium italic">
+                                                        {info.profile.address || "No address details available."}
+                                                    </p>
                                                 </div>
                                             </div>
 
@@ -306,20 +383,40 @@ export default function StudentDashboard() {
                                                     </div>
                                                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Parent/Guardian</h3>
                                                 </div>
-                                                <div className="bg-white dark:bg-slate-800/50 p-5 rounded-xl border border-slate-200 dark:border-slate-600 shadow-sm space-y-4">
-                                                    <div>
-                                                        <span className="text-xs text-slate-400 uppercase font-semibold">Father's Name</span>
-                                                        <p className="font-medium text-slate-800 dark:text-slate-200">{info.profile.fatherName || "N/A"}</p>
+                                                <div className="bg-white dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-lg">
+                                                            <FaUser size={16} />
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest block">Father's Name</span>
+                                                            <p className="font-bold text-slate-800 dark:text-slate-200">{info.profile.fatherName || "N/A"}</p>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <span className="text-xs text-slate-400 uppercase font-semibold">Mother's Name</span>
-                                                        <p className="font-medium text-slate-800 dark:text-slate-200">{info.profile.motherName || "N/A"}</p>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-lg">
+                                                            <FaUser size={16} />
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest block">Mother's Name</span>
+                                                            <p className="font-bold text-slate-800 dark:text-slate-200">{info.profile.motherName || "N/A"}</p>
+                                                        </div>
                                                     </div>
-                                                    <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
-                                                        <span className="text-xs text-slate-400 uppercase font-semibold">Guardian Contact</span>
-                                                        <div className="flex justify-between items-center mt-1">
-                                                            <p className="font-medium text-slate-800 dark:text-slate-200">{info.profile.guardianName || "N/A"}</p>
-                                                            <span className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">{info.profile.guardianPhone || "N/A"}</span>
+                                                    <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 rounded-lg">
+                                                                <FaUserShield size={16} />
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest block">Guardian Contact</span>
+                                                                <p className="font-bold text-slate-800 dark:text-slate-200">{info.profile.guardianName || "N/A"}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="ml-11">
+                                                            <span className="inline-flex items-center gap-2 text-sm font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                                                                <FaPhone size={12} />
+                                                                {info.profile.guardianPhone || "N/A"}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -336,6 +433,7 @@ export default function StudentDashboard() {
                                         exit={{ opacity: 0, scale: 1.05 }}
                                         className="flex flex-col items-center justify-center h-[500px] text-slate-400 dark:text-slate-500"
                                     >
+
                                         <div className="p-6 bg-slate-50 dark:bg-slate-700 rounded-full mb-4 animate-bounce">
                                             <FaExclamationCircle className="text-4xl text-slate-300 dark:text-slate-500" />
                                         </div>
@@ -352,34 +450,48 @@ export default function StudentDashboard() {
                                         exit={{ opacity: 0, x: -20 }}
                                         className="p-6 md:p-8 space-y-6"
                                     >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <h3 className="text-xl font-bold text-slate-800 dark:text-white">Attendance Overview</h3>
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-white">Attendance Stats</h3>
                                             <span className="px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 rounded-full text-sm font-semibold">Current Semester</span>
                                         </div>
 
-                                        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                                            <div className="h-[300px] w-full">
-                                                <ActivityAreaChart data={[
-                                                    { name: 'Week 1', value: 90 },
-                                                    { name: 'Week 2', value: 85 },
-                                                    { name: 'Week 3', value: 95 },
-                                                    { name: 'Week 4', value: 100 },
-                                                ]} />
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden flex justify-between items-start">
+                                                <div className="space-y-4">
+                                                    <p className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Present</p>
+                                                    <h3 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{presentPercent}%</h3>
+                                                    <p className="text-sm font-semibold text-slate-400 dark:text-slate-500">{stats.present} days total</p>
+                                                </div>
+                                                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/30">
+                                                    <div className="text-2xl text-emerald-600 dark:text-emerald-400">✓</div>
+                                                </div>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden flex justify-between items-start">
+                                                <div className="space-y-4">
+                                                    <p className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Absent</p>
+                                                    <h3 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{absentPercent}%</h3>
+                                                    <p className="text-sm font-semibold text-slate-400 dark:text-slate-500">{stats.absent} days total</p>
+                                                </div>
+                                                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-rose-100 dark:bg-rose-900/30">
+                                                    <div className="text-2xl text-rose-600 dark:text-rose-400">×</div>
+                                                </div>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden flex justify-between items-start">
+                                                <div className="space-y-4">
+                                                    <p className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Leave</p>
+                                                    <h3 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{leavePercent}%</h3>
+                                                    <p className="text-sm font-semibold text-slate-400 dark:text-slate-500">{stats.leave} days total</p>
+                                                </div>
+                                                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-amber-100 dark:bg-amber-900/30">
+                                                    <div className="text-2xl text-amber-600 dark:text-amber-400">!</div>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-3 gap-6">
-                                            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800 text-center">
-                                                <span className="block text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">92%</span>
-                                                <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Present</span>
-                                            </div>
-                                            <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800 text-center">
-                                                <span className="block text-3xl font-extrabold text-rose-600 dark:text-rose-400">5%</span>
-                                                <span className="text-sm font-medium text-rose-800 dark:text-rose-300">Absent</span>
-                                            </div>
-                                            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 text-center">
-                                                <span className="block text-3xl font-extrabold text-amber-600 dark:text-amber-400">3%</span>
-                                                <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Leave</span>
+
+                                        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                                            <div className="h-[300px] w-full">
+                                                <ActivityAreaChart data={chartData} />
                                             </div>
                                         </div>
                                     </motion.div>

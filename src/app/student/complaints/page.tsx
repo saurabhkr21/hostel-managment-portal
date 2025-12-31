@@ -80,9 +80,9 @@ export default function StudentComplaintsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-8 px-4 md:p-8 transition-colors duration-300">
             <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 md:mt-0">
                     <div>
                         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">My Complaints</h1>
                         <p className="text-slate-500 dark:text-slate-400 mt-1">Report issues and track their status</p>

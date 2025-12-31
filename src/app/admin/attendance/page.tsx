@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaCalendarAlt, FaSave, FaCheck, FaTimes, FaBed, FaSearch, FaCheckDouble, FaUserTimes } from "react-icons/fa";
+import { FaCalendarAlt, FaSave, FaCheck, FaTimes, FaBed, FaSearch, FaCheckDouble, FaUserTimes, FaInfoCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Student {
@@ -19,10 +19,29 @@ export default function AdminAttendancePage() {
     const [attendance, setAttendance] = useState<{ [key: string]: string }>({});
     const [saving, setSaving] = useState(false);
     const [search, setSearch] = useState("");
+    const [markedDates, setMarkedDates] = useState<string[]>([]);
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentYear = new Date().getFullYear();
+    const years = [currentYear - 1, currentYear, currentYear + 1];
 
     useEffect(() => {
         fetchStudents();
+        fetchMarkedDates();
     }, []);
+
+    const fetchMarkedDates = async () => {
+        try {
+            const res = await fetch("/api/attendance/marked-dates");
+            const data = await res.json();
+            if (!data.error) {
+                setMarkedDates(data.markedDates || []);
+            }
+        } catch (error) {
+            console.error("Error fetching marked dates:", error);
+        }
+    };
 
     // Re-fetch leaves and reset attendance when date or students list changes
     useEffect(() => {
@@ -151,8 +170,10 @@ export default function AdminAttendancePage() {
                 body: JSON.stringify({ date, records }),
             });
 
-            if (res.ok) alert("Attendance marked successfully!");
-            else alert("Failed to mark attendance");
+            if (res.ok) {
+                alert("Attendance marked successfully!");
+                fetchMarkedDates(); // Refresh markers
+            } else alert("Failed to mark attendance");
         } catch (error) {
             console.error(error);
         } finally {
@@ -172,49 +193,62 @@ export default function AdminAttendancePage() {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 md:p-8 transition-colors duration-300">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-16 pb-8 px-2 md:p-8 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto space-y-4 md:space-y-8">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
-                    <div>
-                        <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white">Daily Attendance (Admin)</h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">Mark and save student attendance</p>
+                <div className="flex justify-between items-center md:items-center gap-2 md:mt-0">
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight">Attendance (Admin)</h1>
+                            {markedDates.includes(date) ? (
+                                <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider rounded-full border border-emerald-200 dark:border-emerald-800 shrink-0">
+                                    Marked
+                                </span>
+                            ) : (
+                                <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider rounded-full border border-slate-200 dark:border-slate-700 shrink-0">
+                                    Pending
+                                </span>
+                            )}
+                        </div>
+                        <p className="hidden md:block text-slate-500 dark:text-slate-400 mt-1">Mark and save student attendance</p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
-                            <FaCalendarAlt className="text-slate-400 dark:text-slate-500" />
+                    <div className="flex items-center gap-2 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm w-full md:w-auto">
+                        <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 flex-1 md:flex-none">
+                            <FaCalendarAlt className="text-violet-500 text-xs" />
                             <input
                                 type="date"
+                                min="2024-01-01"
+                                max="2026-12-31"
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
-                                className="bg-transparent font-medium text-slate-700 dark:text-white outline-none dark:[color-scheme:dark] text-sm"
+                                className="bg-transparent font-black text-slate-700 dark:text-white outline-none dark:scheme-dark text-[11px] md:text-sm w-full md:w-32 hover:cursor-pointer"
                             />
                         </div>
                         <button
                             onClick={handleSubmit}
                             disabled={saving}
-                            className="flex items-center gap-2 px-5 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-200 dark:shadow-violet-900/20 transition-all active:scale-95 disabled:opacity-50 text-sm"
+                            className="flex items-center justify-center gap-2 px-6 py-2 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-xl shadow-lg shadow-violet-200 dark:shadow-none transition-all active:scale-95 disabled:opacity-50 text-xs md:text-sm flex-1 md:flex-none"
                         >
-                            {saving ? <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <FaSave />}
-                            <span>Save Attendance</span>
+                            {saving ? <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full" /> : <FaSave />}
+                            <span>Save All</span>
                         </button>
                     </div>
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-3 gap-3 md:gap-6">
                     <motion.div
                         whileHover={{ y: -4 }}
-                        className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group"
+                        className="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group h-full"
                     >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-300 opacity-[0.05] rounded-bl-[3rem] group-hover:scale-110 transition-transform duration-500" />
-                        <div className="flex items-center justify-between relative z-10">
-                            <div>
-                                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Present</p>
-                                <h3 className="text-3xl font-bold text-slate-800 dark:text-white">{stats.present}</h3>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-br from-emerald-400/10 to-transparent rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500" />
+                        <div className="flex items-center justify-between gap-4 relative z-10 w-full h-full">
+                            <div className="flex flex-col justify-center h-full">
+                                <p className="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-none mb-1.5">Present</p>
+                                <h3 className="text-2xl md:text-4xl font-black text-slate-800 dark:text-white leading-none tracking-tighter">{stats.present}</h3>
                             </div>
-                            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
+                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl md:text-3xl shrink-0 transition-transform group-hover:rotate-12 duration-300">
                                 <FaCheck />
                             </div>
                         </div>
@@ -222,15 +256,15 @@ export default function AdminAttendancePage() {
 
                     <motion.div
                         whileHover={{ y: -4 }}
-                        className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group"
+                        className="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group h-full"
                     >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rose-400 to-red-300 opacity-[0.05] rounded-bl-[3rem] group-hover:scale-110 transition-transform duration-500" />
-                        <div className="flex items-center justify-between relative z-10">
-                            <div>
-                                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Absent</p>
-                                <h3 className="text-3xl font-bold text-slate-800 dark:text-white">{stats.absent}</h3>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-br from-rose-400/10 to-transparent rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500" />
+                        <div className="flex items-center justify-between gap-4 relative z-10 w-full h-full">
+                            <div className="flex flex-col justify-center h-full">
+                                <p className="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-none mb-1.5">Absent</p>
+                                <h3 className="text-2xl md:text-4xl font-black text-slate-800 dark:text-white leading-none tracking-tighter">{stats.absent}</h3>
                             </div>
-                            <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl">
+                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl md:text-3xl shrink-0 transition-transform group-hover:rotate-12 duration-300">
                                 <FaTimes />
                             </div>
                         </div>
@@ -238,25 +272,37 @@ export default function AdminAttendancePage() {
 
                     <motion.div
                         whileHover={{ y: -4 }}
-                        className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group"
+                        className="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group h-full"
                     >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400 to-orange-300 opacity-[0.05] rounded-bl-[3rem] group-hover:scale-110 transition-transform duration-500" />
-                        <div className="flex items-center justify-between relative z-10">
-                            <div>
-                                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">On Leave</p>
-                                <h3 className="text-3xl font-bold text-slate-800 dark:text-white">{stats.leave}</h3>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-br from-amber-400/10 to-transparent rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500" />
+                        <div className="flex items-center justify-between gap-4 relative z-10 w-full h-full">
+                            <div className="flex flex-col justify-center h-full">
+                                <p className="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-none mb-1.5">On Leave</p>
+                                <h3 className="text-2xl md:text-4xl font-black text-slate-800 dark:text-white leading-none tracking-tighter">{stats.leave}</h3>
                             </div>
-                            <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
-                                <FaBed />
+                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl md:text-3xl shrink-0 transition-transform group-hover:rotate-12 duration-300">
+                                <FaInfoCircle />
                             </div>
                         </div>
                     </motion.div>
                 </div>
 
-                {/* List */}
+                {/* Content Area */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                     {/* Search Bar & Quick Actions or Bulk Actions */}
-                    <div className={`p-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4 transition-colors ${selectedStudents.length > 0 ? 'bg-violet-50 dark:bg-violet-900/10' : 'bg-slate-50/50 dark:bg-slate-900/30'}`}>
+                    <div className={`p-3 md:p-4 border-b border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-center gap-4 transition-colors ${selectedStudents.length > 0 ? 'bg-violet-50 dark:bg-violet-900/10' : 'bg-slate-50/50 dark:bg-slate-900/30'}`}>
+                        <div className="flex items-center gap-2 w-full md:w-auto">
+                            <div className="relative flex-1 md:w-64">
+                                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs md:text-sm" />
+                                <input
+                                    type="text"
+                                    placeholder="Search name or room..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="w-full bg-white dark:bg-slate-800 pl-9 pr-4 py-2 rounded-xl text-xs md:text-sm border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all font-bold"
+                                />
+                            </div>
+                        </div>
                         {selectedStudents.length > 0 ? (
                             // Bulk Action Bar
                             <div className="w-full flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-200">
@@ -325,9 +371,9 @@ export default function AdminAttendancePage() {
 
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
+                            <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
                                 <tr>
-                                    <th className="px-6 py-3 w-10">
+                                    <th className="px-3 py-3 md:px-6 md:py-3 w-8 md:w-10">
                                         <input
                                             type="checkbox"
                                             checked={filteredStudents.length > 0 && selectedStudents.length === filteredStudents.length}
@@ -335,8 +381,8 @@ export default function AdminAttendancePage() {
                                             className="rounded border-slate-300 text-violet-600 focus:ring-violet-500 w-4 h-4 cursor-pointer"
                                         />
                                     </th>
-                                    <th className="px-6 py-3 text-left">Student Details</th>
-                                    <th className="px-6 py-3 text-center">Status Selection</th>
+                                    <th className="px-3 py-3 md:px-6 md:py-3 text-left">Student</th>
+                                    <th className="px-3 py-3 md:px-6 md:py-3 text-center">Selection</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -348,7 +394,7 @@ export default function AdminAttendancePage() {
                                             animate={{ opacity: 1 }}
                                             className="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors"
                                         >
-                                            <td className="px-6 py-4">
+                                            <td className="px-3 py-3 md:px-6 md:py-4">
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedStudents.includes(student.id)}
@@ -356,52 +402,58 @@ export default function AdminAttendancePage() {
                                                     className="rounded border-slate-300 text-violet-600 focus:ring-violet-500 w-4 h-4 cursor-pointer"
                                                 />
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-3 py-3 md:px-6 md:py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">
+                                                    <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs md:text-sm font-bold shrink-0">
                                                         {student.name.charAt(0)}
                                                     </div>
-                                                    <div>
-                                                        <p className="font-bold text-slate-800 dark:text-white">{student.name}</p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
-                                                            <FaBed size={10} /> Room: {student.room?.roomNumber || "N/A"}
+                                                    <div className="min-w-0">
+                                                        <p className="font-bold text-slate-800 dark:text-white text-xs md:text-sm truncate">{student.name}</p>
+                                                        <p className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                                                            <FaBed size={10} className="md:w-2.5 md:h-2.5" /> Room: {student.room?.roomNumber || "N/A"}
                                                         </p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center justify-center gap-1.5">
-                                                    {[
-                                                        {
-                                                            id: "PRESENT",
-                                                            label: "Present",
-                                                            color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:text-emerald-500",
-                                                            active: "bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20"
-                                                        },
-                                                        {
-                                                            id: "ABSENT",
-                                                            label: "Absent",
-                                                            color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-rose-500 hover:text-rose-500",
-                                                            active: "bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20"
-                                                        },
-                                                        {
-                                                            id: "LEAVE",
-                                                            label: "Leave",
-                                                            color: "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-500 hover:text-amber-500",
-                                                            active: "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
-                                                        },
-                                                    ].map((opt) => (
-                                                        <button
-                                                            key={opt.id}
-                                                            onClick={() => handleAttendanceChange(student.id, opt.id)}
-                                                            className={`
-                                                                px-3 py-1.5 rounded-md font-bold text-xs border transition-all duration-200 min-w-[70px]
-                                                                ${attendance[student.id] === opt.id ? opt.active : opt.color}
-                                                            `}
-                                                        >
-                                                            {opt.label}
-                                                        </button>
-                                                    ))}
+                                            <td className="px-3 py-3 md:px-6 md:py-4">
+                                                <div className="flex items-center justify-center w-full max-w-[140px] md:max-w-[280px] mx-auto">
+                                                    <div className="inline-flex items-center p-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl w-full border border-slate-200 dark:border-slate-700 overflow-hidden">
+                                                        {[
+                                                            {
+                                                                id: "PRESENT",
+                                                                label: "Present",
+                                                                icon: <FaCheck />,
+                                                                active: "bg-emerald-500 text-white shadow-sm",
+                                                                idle: "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                                                            },
+                                                            {
+                                                                id: "ABSENT",
+                                                                label: "Absent",
+                                                                icon: <FaTimes />,
+                                                                active: "bg-rose-500 text-white shadow-sm",
+                                                                idle: "text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                                                            },
+                                                            {
+                                                                id: "LEAVE",
+                                                                label: "Leave",
+                                                                icon: <FaInfoCircle />,
+                                                                active: "bg-amber-500 text-white shadow-sm",
+                                                                idle: "text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                                            },
+                                                        ].map((opt) => (
+                                                            <button
+                                                                key={opt.id}
+                                                                onClick={() => handleAttendanceChange(student.id, opt.id)}
+                                                                className={`
+                                                                    flex-1 flex items-center justify-center gap-1.5 py-1.5 md:py-2 px-1 rounded-lg text-[10px] md:text-xs font-black transition-all duration-300
+                                                                    ${attendance[student.id] === opt.id ? opt.active : opt.idle}
+                                                                `}
+                                                            >
+                                                                <span className="text-[11px] md:text-sm">{opt.icon}</span>
+                                                                <span className="hidden md:inline">{opt.label}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </td>
                                         </motion.tr>

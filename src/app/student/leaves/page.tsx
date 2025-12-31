@@ -65,7 +65,7 @@ export default function LeaveApplyPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 px-6 pb-6 pt-24 md:p-8 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 pt-24 pb-8 px-4 md:p-8 transition-colors duration-300">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -78,7 +78,7 @@ export default function LeaveApplyPage() {
 
                 {/* Student Information Card */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                    <div className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                    <div className="bg-linear-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
                         <div className="p-2 bg-violet-100/50 dark:bg-violet-900/30 rounded-lg text-violet-600 dark:text-violet-400">
                             <FaUser size={20} />
                         </div>
@@ -87,7 +87,7 @@ export default function LeaveApplyPage() {
                     <div className="p-6 md:p-8">
                         <div className="flex flex-col md:flex-row gap-8 items-start">
                             {/* Profile Image */}
-                            <div className="w-32 h-40 bg-slate-100 dark:bg-slate-700 rounded-lg flex-shrink-0 overflow-hidden shadow-inner border border-slate-200 dark:border-slate-600 ring-4 ring-white dark:ring-slate-800 shadow-sm">
+                            <div className="w-32 h-40 bg-slate-100 dark:bg-slate-700 rounded-lg shrink-0 overflow-hidden border border-slate-200 dark:border-slate-600 ring-4 ring-white dark:ring-slate-800 shadow-sm">
                                 {studentInfo?.profile?.profileImage ? (
                                     <img
                                         src={studentInfo.profile.profileImage}
@@ -131,7 +131,7 @@ export default function LeaveApplyPage() {
 
                 {/* Leave Application Form */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                    <div className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                    <div className="bg-linear-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
                         <div className="p-2 bg-indigo-100/50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
                             <FaCalendarAlt size={20} />
                         </div>
@@ -210,7 +210,7 @@ const InputGroup = ({ label, type, value, onChange, required, placeholder }: any
         <input
             type={type}
             required={required}
-            className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all dark:text-white dark:placeholder-slate-400 dark:[color-scheme:dark]"
+            className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all dark:text-white dark:placeholder-slate-400 dark:scheme-dark"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
