@@ -60,7 +60,9 @@ export default function AIChatWidget() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     messages: [...messages, userMessage], // Send context
-                    userRole: session?.user?.role
+                    userRole: session?.user?.role,
+                    userName: session?.user?.name,
+                    currentPath: pathname
                 })
             });
 
@@ -68,9 +70,12 @@ export default function AIChatWidget() {
 
             if (data.error) {
                 // Check specifically for missing key error
-                const errorMessage = data.error.includes("AI service is not configured")
-                    ? "✨ Setup Required: Please add GEMINI_API_KEY to your .env file to enable the AI assistant."
-                    : "Sorry, I encountered an error. Please try again later.";
+                let errorMessage = data.error;
+                if (errorMessage.includes("404") || errorMessage.includes("Not Found")) {
+                    errorMessage = "🔔 internal_error: The AI API is not enabled. Please enable 'Generative Language API' in Google Cloud Console.";
+                } else if (errorMessage.includes("API Key")) {
+                    errorMessage = "✨ Setup Required: Please add a valid GEMINI_API_KEY to your .env file.";
+                }
 
                 setMessages(prev => [...prev, {
                     id: Date.now().toString(),
@@ -108,7 +113,7 @@ export default function AIChatWidget() {
                         className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl w-80 sm:w-96 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 mb-4 overflow-hidden pointer-events-auto flex flex-col max-h-[500px]"
                     >
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-4 flex justify-between items-center text-white shadow-md">
+                        <div className="bg-linear-to-r from-violet-600 to-indigo-600 p-4 flex justify-between items-center text-white shadow-md">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm border border-white/10">
                                     <FaRobot className="text-lg" />
@@ -138,7 +143,7 @@ export default function AIChatWidget() {
                                 >
                                     <div
                                         className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === "user"
-                                            ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-br-none shadow-violet-500/20"
+                                            ? "bg-linear-to-r from-violet-600 to-indigo-600 text-white rounded-br-none shadow-violet-500/20"
                                             : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-bl-none"
                                             }`}
                                     >
@@ -175,7 +180,7 @@ export default function AIChatWidget() {
                             <button
                                 type="submit"
                                 disabled={!input.trim() || isLoading}
-                                className="p-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:shadow-lg disabled:opacity-50 disabled:shadow-none hover:shadow-violet-500/30 text-white rounded-full transition-all active:scale-95"
+                                className="p-3 bg-linear-to-r from-violet-600 to-indigo-600 hover:shadow-lg disabled:opacity-50 disabled:shadow-none hover:shadow-violet-500/30 text-white rounded-full transition-all active:scale-95"
                             >
                                 <FaPaperPlane className="text-sm" />
                             </button>
@@ -188,7 +193,7 @@ export default function AIChatWidget() {
             <motion.button
                 layoutId="chat-toggle"
                 onClick={() => setIsOpen(!isOpen)}
-                className="pointer-events-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:shadow-lg hover:shadow-violet-600/40 text-white p-4 rounded-full transition-all active:scale-95 group relative border border-white/10"
+                className="pointer-events-auto bg-linear-to-r from-violet-600 to-indigo-600 hover:shadow-lg hover:shadow-violet-600/40 text-white p-4 rounded-full transition-all active:scale-95 group relative border border-white/10"
             >
                 {isOpen ? <FaTimes className="text-xl" /> : <FaComments className="text-xl" />}
                 {!isOpen && (

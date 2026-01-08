@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTimes, FaBell, FaCheckDouble, FaExclamationTriangle, FaBullhorn, FaInfoCircle, FaPaperclip, FaArrowLeft } from "react-icons/fa";
+import { FaTimes, FaBell,FaExclamationTriangle, FaBullhorn, FaInfoCircle, FaPaperclip, FaArrowLeft } from "react-icons/fa";
 
 interface NotificationPanelProps {
     isOpen: boolean;

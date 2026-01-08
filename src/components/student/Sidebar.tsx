@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaExclamationCircle, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaMoon, FaSun, FaUserCircle, FaCog, FaMoneyBillWave, FaBell, FaSuitcase, FaClipboardList, FaBars, FaComments } from "react-icons/fa";
+import { FaHome, FaSignOutAlt, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaMoon, FaSun, FaUserCircle, FaCog, FaMoneyBillWave, FaBell, FaSuitcase, FaClipboardList, FaBars, FaComments } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSidebar } from "@/components/providers/SidebarContext";
-import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import NotificationPanel from "./NotificationPanel";
 
@@ -14,7 +13,6 @@ export default function StudentSidebar() {
     const pathname = usePathname();
     const { isCollapsed, toggleSidebar, isMobile, setSidebarState } = useSidebar();
     const { data: session } = useSession();
-    const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const [profileImage, setProfileImage] = useState<string | null>(null);
 
