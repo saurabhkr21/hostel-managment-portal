@@ -69,12 +69,18 @@ export default function AIChatWidget() {
             const data = await response.json();
 
             if (data.error) {
-                // Check specifically for missing key error
+                // Check specifically for common OpenAI errors
                 let errorMessage = data.error;
+                if (data.details) {
+                    errorMessage += ` (Code: ${data.details})`;
+                }
+
                 if (errorMessage.includes("404") || errorMessage.includes("Not Found")) {
-                    errorMessage = "🔔 internal_error: The AI API is not enabled. Please enable 'Generative Language API' in Google Cloud Console.";
-                } else if (errorMessage.includes("API Key")) {
-                    errorMessage = "✨ Setup Required: Please add a valid GEMINI_API_KEY to your .env file.";
+                    errorMessage = "🔔 System Error: The AI service endpoint could not be reached.";
+                } else if (errorMessage.includes("API Key") || errorMessage.includes("401") || errorMessage.includes("invalid_api_key")) {
+                    errorMessage = "✨ Setup Required: Please check your OPENAI_API_KEY in the .env file.";
+                } else if (errorMessage.includes("429") || errorMessage.includes("insufficient_quota")) {
+                    errorMessage = "⚠️ Usage Limit: OpenAI API quota exceeded or rate limit reached.";
                 }
 
                 setMessages(prev => [...prev, {

@@ -99,9 +99,17 @@ export async function POST(req: Request) {
         return NextResponse.json({ reply: response });
 
     } catch (error: any) {
-        console.error("AI Chat Error:", error);
+        console.error("AI Chat Error Details:", error);
+
+        // Return more specific error information
+        const errorMessage = error?.message || "Failed to generate response";
+        const errorCode = error?.code || "UNKNOWN_ERROR";
+
         return NextResponse.json(
-            { error: error.message || "Failed to generate response" },
+            {
+                error: errorMessage,
+                details: errorCode
+            },
             { status: 500 }
         );
     }
